@@ -1,42 +1,38 @@
-# Pakka — smart festive logistics, less waste
+# Pakka
 
-**Live demo (press Play, sound on): https://pakka.debopamchowdhury.com** — a narrated replay of a real recorded run.
+**Smart festive logistics, less waste.** For Indian D2C brands.
 
-Pakka is a logistics control tower for Indian D2C brands in the festive rush. Shipping is free for the buyer, so when
-a cash-on-delivery (COD) parcel comes back unopened (RTO), the brand pays shipping both ways. Pakka cuts failed COD
-deliveries, sends high-value carts first at peak, and reroutes around jammed courier hubs live, with a person
-approving each fix in NudgeBee (Slack, Teams or Google Chat also work).
+<p align="center">
+  <a href="https://pakka.debopamchowdhury.com"><b>▶ Watch the live demo: pakka.debopamchowdhury.com</b></a><br/>
+  <sub>Press Play, sound on. A narrated replay of a real run.</sub>
+</p>
 
-**Who buys it:** D2C brands that sell heavily on COD during festive sales, and the shipping aggregators and 3PLs that
-run their orders, as a per-order subscription.
+![A person approves the reroute in NudgeBee](web/screenshots/human-approval.png)
 
-Built solo at **Festive Hacks**, BIEC Bengaluru, 25 Nov 2026.
+## Problem
 
-![Pakka after a reroute](web/screenshots/mock-rerouted.png)
+Festive peaks waste money: COD parcels come back (shipping paid both ways), courier hubs jam, big carts wait behind small ones.
 
-## The demo story
+## What Pakka does
 
-1. A Jaipur kurta brand ships a ₹1,499 Diwali COD order to Aditi, a first-time buyer in Hubballi (580020).
-2. **Flagsmith** decides she is a risky first COD order, so Pakka calls her in Hinglish (**Sarvam**). She says
-   "haan, bhej do", and **Claude** reads that as a confirmation.
-3. The courier's Bengaluru hub jams. Its service starts crashing and Kubernetes shows a crash loop.
-4. **NudgeBee** detects the crash loop on its own, starts the reroute runbook and waits for a human to approve.
-5. On approval, the runbook calls Pakka inside the cluster. Pakka changes the routing in Flagsmith, moves the
-   in-flight orders to the backup courier, and tells each buyer in Hinglish.
-
-Everything courier-related is simulated and labelled as such: no real courier APIs, calls or payments.
-
-## How each sponsor is used
-
-| Sponsor | What it does in Pakka |
+| | How |
 |---|---|
-| **Flagsmith** (self-hosted) | Holds the live logistics rules. `courier_routing` (pincode prefix → courier, plus a fallback) and `cod_policy` are remote config. Segments change the COD policy per buyer: `repeat_buyer` skips the voice check, and `risky_first_cod` (first order, high-RTO pincode) always gets a call and a lower COD cap. `prepaid_nudge` is a 50/50 A/B test (₹50 off vs free gift wrap), and `voice_confirm_enabled` is a kill switch. NudgeBee's approved runbook flips `courier_routing` through the Admin API, and the dashboard shows every flag change, including edits made in Flagsmith's UI. |
-| **NudgeBee** | Watches the cluster. Its own crash-loop detection raises the event, and the `pakka-hub-reroute` automation (event trigger → approval → script) runs the fix after a human approves. The script runs inside our cluster and calls Pakka; Pakka alone holds the Flagsmith key. |
-| **Sarvam AI** | Bulbul text-to-speech (`bulbul:v4-flash`, Hinglish) for the COD confirmation call and the reroute update. Saaras speech-to-text (`saaras:v4`, `codemix`) for the buyer's spoken reply. |
+| **Fewer wasted returns** | Flagsmith segments the buyer · Sarvam AI confirms risky COD by voice · Claude reads the reply · no COD for repeat returners |
+| **High-value carts first** | Flagsmith `peak_priority` sends big carts around a jammed hub |
+| **Self-healing routing** | NudgeBee detects the crash loop · a person approves · Flagsmith reroutes live · no deploy |
 
-Claude (Opus 5.5 on Azure) classifies the buyer's reply as confirm, cancel, reschedule or unclear. A keyword fallback
-runs without it, and it reads "haan, koi problem nahi, bhej do" as a cancellation because of "nahi". That is why the
-LLM is there.
+## Sponsors
+
+- **Flagsmith** (self-hosted): segments, remote config (`courier_routing`, `cod_policy`, `peak_priority`), A/B test, kill switch, Admin API.
+- **NudgeBee**: crash-loop detection → approval (NudgeBee UI; Slack, Teams or Google Chat also work) → run script in our cluster.
+- **Sarvam AI**: Hinglish voice (Bulbul TTS, Saaras STT).
+- Also: Claude API for reply intent, Kubernetes on OrbStack.
+
+## Who buys it
+
+COD-heavy D2C brands, shipping aggregators and 3PLs. Per-order subscription.
+
+![How the pieces connect](web/screenshots/architecture.png)
 
 ## Architecture
 
