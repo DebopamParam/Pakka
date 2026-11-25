@@ -82,6 +82,14 @@ const startRouting = JSON.stringify(start.routing.by_prefix);
 step("start", "Dashboard at rest");
 await sleep(2000);
 
+// A buyer with a bad return history: Flagsmith's rto_offender segment turns COD off (the API answers 422).
+await call("POST", "/api/orders", {
+  buyer_name: "Rahul Verma", phone_last4: "5521", pincode: "411038", city: "Pune",
+  value: 1899, cod: true, order_count: 4, rto_risk: "low", past_rto: 3,
+}).catch(() => null);
+step("blocked", "Repeat returner: Flagsmith turns COD off");
+await sleep(3000);
+
 const created = await call("POST", "/api/orders", {
   buyer_name: "Aditi Kulkarni", phone_last4: "3208", pincode: "580020", city: "Hubballi",
   value: 1499, cod: true, order_count: 0, rto_risk: "high",
@@ -106,6 +114,13 @@ for (let i = 0; i < 40 && !/CrashLoopBackOff/.test(proofs.pods_crash || ""); i++
   proofs.pods_crash = pods();
 }
 step("crash", "Kubernetes: SwiftShip in CrashLoopBackOff");
+
+// At peak, a high-value cart for the jammed hub goes straight to the fallback courier.
+await call("POST", "/api/orders", {
+  buyer_name: "Rohan Mehta", phone_last4: "7734", pincode: "560076", city: "Bengaluru",
+  value: 4999, cod: false, order_count: 3, rto_risk: "low",
+});
+step("priority", "High-value cart skips the jammed hub");
 
 console.log("Waiting for NudgeBee: approve the pakka-hub-reroute run in NudgeBee (up to 15 minutes)...");
 for (let i = 0; i < 900; i++) {

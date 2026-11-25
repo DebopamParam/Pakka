@@ -1,18 +1,26 @@
-import { ArrowUpRight, AudioLines, Code2, Image, Pause, Play, RotateCcw, Terminal, X } from 'lucide-react'
-import { useLayoutEffect, useRef } from 'react'
+import { ArrowUpRight, AudioLines, Code2, Image, Pause, Play, Terminal, X } from 'lucide-react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import type { ProofImage, ReplayClip, ReplayRun, ReplayStepId } from '../replay'
 import type { useReplay } from '../useReplay'
 
 const steps: Record<ReplayStepId, { name: string; actor: string }> = {
   start: { name: 'Start', actor: 'Pakka' },
+  blocked: { name: 'No COD', actor: 'Flagsmith' },
   order: { name: 'Order', actor: 'Flagsmith' },
   call: { name: 'Call', actor: 'Sarvam AI' },
   reply: { name: 'Reply', actor: 'Buyer' },
   jam: { name: 'Jam', actor: 'Courier 1' },
   crash: { name: 'Crash', actor: 'Kubernetes' },
+  priority: { name: 'Priority', actor: 'Flagsmith' },
   reroute: { name: 'Reroute', actor: 'NudgeBee + Flagsmith' },
   update: { name: 'Update', actor: 'Sarvam AI' },
   end: { name: 'Finish', actor: 'Pakka' },
+}
+
+const clockTime = (ms: number) => {
+  const seconds = Math.max(0, Math.floor(ms / 1000))
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
 }
 
 const dateInIndia = new Intl.DateTimeFormat('en-IN', {
@@ -20,19 +28,39 @@ const dateInIndia = new Intl.DateTimeFormat('en-IN', {
 })
 
 export function ReplayControls({ run, playback }: { run: ReplayRun; playback: ReturnType<typeof useReplay> }) {
-  const { frame, index, playing, finished, audioError, play, pause, jump } = playback
+  const { frame, index, playing, finished, audioError, play, pause, jump, seek, seekTo, now, total } = playback
+  const [, setTick] = useState(0)
+  useEffect(() => {
+    if (!playing) return
+    const timer = window.setInterval(() => setTick((tick) => tick + 1), 250)
+    return () => window.clearInterval(timer)
+  }, [playing])
+  const length = total()
+  const at = Math.min(now(), length)
   const actor = frame.id === 'reply' && run.reply?.source === 'claude' ? 'Claude' : steps[frame.id].actor
 
   return (
     <section className="replay-controls" aria-label="Recorded demo">
       <div className="replay-actions">
-        <button type="button" className="new-order replay-play" onClick={() => playing ? pause() : play()}>
+        <button type="button" className="new-order replay-play" data-tour="play" onClick={() => playing ? pause() : play()}>
           {playing ? <Pause size={15} /> : <Play size={15} fill="currentColor" />}
           {playing ? 'Pause demo' : finished ? 'Replay demo' : 'Play the demo'}
         </button>
-        <button type="button" className="replay-restart" aria-label="Restart demo" title="Restart demo" onClick={() => play(true)}>
-          <RotateCcw size={16} />
+        <button type="button" className="replay-restart replay-skip" aria-label="Back 5 seconds" title="Back 5 seconds" onClick={() => seek(-5000)}>
+          −5s
         </button>
+        <button type="button" className="replay-restart replay-skip" aria-label="Forward 5 seconds" title="Forward 5 seconds" onClick={() => seek(5000)}>
+          +5s
+        </button>
+        <button type="button" className="replay-restart replay-again" aria-label="Restart demo from the beginning" title="Restart from the beginning" onClick={() => play(true)}>
+          Restart
+        </button>
+      </div>
+      <div className="replay-timeline">
+        <input type="range" aria-label="Demo position" min={0} max={Math.round(length)} step={100} value={Math.round(at)}
+          style={{ '--progress': `${length ? (at / length) * 100 : 0}%` } as CSSProperties}
+          onChange={(event) => seekTo(Number(event.target.value))} />
+        <span className="mono">{clockTime(at)} / {clockTime(length)}</span>
       </div>
       <div className="replay-position">
         <p className="replay-caption" role="status"><strong>{actor}</strong><span>{frame.label}</span></p>

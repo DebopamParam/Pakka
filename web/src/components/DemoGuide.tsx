@@ -1,4 +1,4 @@
-import { ArrowUpRight, AudioLines, Flag, PhoneCall, Radar, Route, ShoppingCart, Sparkles, UserCheck, Volume2 } from 'lucide-react'
+import { ArrowUpRight, PhoneCall, Route, ShoppingCart, UserCheck } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { rupees } from '../model'
@@ -48,9 +48,15 @@ function steps(run: ReplayRun): Record<ReplayStepId, Beat[]> {
   const moved = find(/Rerouted .+? → .+? \| (\d+) in-flight/)?.[1]
   const prefixes = find(/courier_routing updated \| prefixes ([\d, ]+) now/)?.[1]
   const reply = run.reply
+  const cart = last.state.orders.find((order) => order.priority && !order.background && order.courier !== 'swiftship')
 
   return {
     start: [{ at: 0, actor: 'Pakka', text: 'Festive rush at Jaipur Kurta Co. Pakka turns the traffic into profit, with less waste.' }],
+    blocked: [{
+      at: 0, actor: 'Flagsmith', text: 'A buyer with 3 past returns asks for COD: Flagsmith turns COD off and offers prepaid instead.',
+      target: 'activity', label: 'No COD for repeat returners',
+      feature: 'Flagsmith · segment rto_offender (past_rto ≥ 2) overrides cod_policy: cod_allowed false',
+    }],
     order: [
       { at: 0, actor: 'Pakka', text: `New order: ${buyer?.buyer_name ?? name}, ${buyer?.city ?? ''} — ${amount}, cash on delivery.`, target: `order-${run.orderId}`, label: 'New COD order' },
       {
@@ -85,11 +91,16 @@ function steps(run: ReplayRun): Record<ReplayStepId, Beat[]> {
         proof: { sponsor: 'NudgeBee', title: 'Crash loop detected in our cluster', src: '/proof/nudgebee-detected-crop.png' },
       },
     ],
+    priority: [{
+      at: 0, actor: 'Flagsmith', text: `At peak, a ${cart ? rupees.format(cart.value) : 'high-value'} cart for Bengaluru skips the jammed hub and goes straight to Courier 2.`,
+      target: cart ? `order-${cart.id}` : 'orders', label: 'High-value cart first',
+      feature: 'Flagsmith · peak_priority remote config: carts ≥ ₹2,000 at ≥ 40 orders in flight',
+    }],
     reroute: [
       {
         at: 0, actor: 'NudgeBee', human: true, text: 'Nothing changes until a person says yes: the automation stops at its approval step, and on-call approves it.',
         target: 'routing', label: 'A person approves',
-        feature: 'NudgeBee · approval step in the automation',
+        feature: 'NudgeBee · approval step · here in NudgeBee; Slack, Teams or Google Chat also work',
         proof: { sponsor: 'NudgeBee', title: 'Waiting for on-call approval', src: '/proof/nudgebee-approval-crop.png' },
       },
       {
@@ -151,12 +162,12 @@ function useTargetRect(target: string | undefined, scroll: boolean) {
 }
 
 const POINTS = [
-  { icon: PhoneCall, title: 'Fewer wasted returns', text: 'Flagsmith segments each buyer: Sarvam AI confirms risky COD by voice, and repeat returners get no COD.' },
-  { icon: ShoppingCart, title: 'High-value carts first at peak', text: 'At peak, big carts skip a jammed courier hub at once.' },
-  { icon: Route, title: 'Move orders off a failing courier hub', text: 'NudgeBee catches the crash, a person approves, Flagsmith reroutes. No deploy.' },
+  { icon: PhoneCall, title: 'Fewer wasted returns', text: 'Flagsmith segments every buyer. Sarvam AI confirms risky COD by voice, Claude reads the reply, and repeat returners get no COD.' },
+  { icon: ShoppingCart, title: 'High-value carts first at peak', text: "Flagsmith's peak_priority flag sends big carts around a jammed courier hub at once." },
+  { icon: Route, title: 'Self-healing courier routing', text: 'NudgeBee catches the failing hub in Kubernetes, a person approves, Flagsmith reroutes every order live. No deploy.' },
 ]
 
-function Intro({ playing }: { playing: boolean }) {
+function Intro() {
   return (
     <motion.section className="tour-intro" aria-label="What Pakka does"
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, scale: 0.98 }}
@@ -172,17 +183,9 @@ function Intro({ playing }: { playing: boolean }) {
           </li>
         ))}
       </ul>
-      {!playing && <p className="tour-intro-hint"><Volume2 size={14} /> Press Play the demo, with sound on</p>}
+      <p className="tour-intro-buyer"><strong>Who buys it:</strong> D2C brands with heavy cash on delivery at festive peaks, and the logistics partners that ship for them.</p>
+      <p className="tour-intro-stack">Flagsmith (self-hosted) · NudgeBee · Sarvam AI · Claude API · Kubernetes on OrbStack</p>
     </motion.section>
-  )
-}
-
-function Node({ icon: Icon, title, text }: { icon: typeof Flag; title: string; text: string }) {
-  return (
-    <div className="arch-node">
-      <span className="tour-intro-icon"><Icon size={16} /></span>
-      <div><strong>{title}</strong><p>{text}</p></div>
-    </div>
   )
 }
 
@@ -193,22 +196,48 @@ function Outro() {
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
       <p className="tour-intro-eyebrow">Architecture</p>
       <h2>How the pieces connect.</h2>
-      <div className="arch">
-        <div className="arch-top"><Node icon={AudioLines} title="Sarvam AI · cloud API" text="Hinglish calls to the buyer" /></div>
-        <span className="arch-link arch-v arch-top-link">voice calls ↕</span>
-        <div className="arch-left"><Node icon={Flag} title="Flagsmith · self-hosted" text="Docker on our MacBook" /></div>
-        <span className="arch-link arch-left-link">flags per buyer →<br />← routing via Admin API</span>
-        <div className="arch-cluster">
-          <p>Kubernetes · OrbStack on our MacBook</p>
-          <div className="arch-pods"><span className="arch-pod arch-pakka">Pakka control tower</span><span className="arch-pod">Courier 1</span><span className="arch-pod">Courier 2</span></div>
-        </div>
-        <span className="arch-link arch-right-link">← reply intent<br />buyer's reply →</span>
-        <div className="arch-right"><Node icon={Sparkles} title="Claude API" text="Reads what the buyer meant" /></div>
-        <span className="arch-link arch-v arch-bottom-link">pod events ↓ · ↑ approved reroute script</span>
-        <div className="arch-bottom">
-          <Node icon={Radar} title="NudgeBee · hosted" text="Watches the cluster, runs the automation" />
-          <span className="arch-human"><UserCheck size={14} /> A person approves every fix</span>
-        </div>
+      <svg className="arch-svg" viewBox="0 0 880 400" role="img" aria-label="Buyer, Sarvam AI and Claude API around our MacBook, which runs self-hosted Flagsmith and a Kubernetes cluster in OrbStack; hosted NudgeBee watches the cluster and a person approves each fix">
+        <defs>
+          <marker id="arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" /></marker>
+        </defs>
+        <rect className="arch-zone" x="200" y="100" width="660" height="185" rx="18" />
+        <text className="arch-zone-label" x="216" y="276">Our MacBook</text>
+        <rect className="arch-k8s" x="400" y="132" width="440" height="135" rx="14" />
+        <text className="arch-k8s-label" x="826" y="150">Kubernetes · OrbStack</text>
+        <rect className="arch-cloud" x="400" y="305" width="460" height="82" rx="14" />
+        <text className="arch-cloud-label" x="414" y="323">NudgeBee · hosted automation</text>
+
+        <g className="arch-box"><rect x="20" y="20" width="150" height="56" rx="12" /><text x="95" y="44">Buyer</text><text className="arch-sub" x="95" y="62">places an order</text></g>
+        <g className="arch-box"><rect x="250" y="20" width="170" height="56" rx="12" /><text x="335" y="44">Sarvam AI</text><text className="arch-sub" x="335" y="62">cloud API · voice</text></g>
+        <g className="arch-box"><rect x="690" y="20" width="170" height="56" rx="12" /><text x="775" y="44">Claude API</text><text className="arch-sub" x="775" y="62">reads the reply</text></g>
+        <g className="arch-box"><rect x="215" y="150" width="140" height="56" rx="12" /><text x="285" y="174">Flagsmith</text><text className="arch-sub" x="285" y="192">self-hosted · Docker</text></g>
+        <g className="arch-box arch-main"><rect x="420" y="160" width="150" height="40" rx="10" /><text x="495" y="185">Pakka control tower</text></g>
+        <g className="arch-box"><rect x="590" y="160" width="110" height="40" rx="10" /><text x="645" y="185">Courier 1</text></g>
+        <g className="arch-box"><rect x="715" y="160" width="110" height="40" rx="10" /><text x="770" y="185">Courier 2</text></g>
+        <g className="arch-box"><rect x="420" y="215" width="200" height="36" rx="10" /><text className="arch-small" x="520" y="238">run-script pod</text></g>
+        <g className="arch-box"><rect x="640" y="215" width="185" height="36" rx="10" /><text className="arch-small" x="732" y="238">NudgeBee agent</text></g>
+        <g className="arch-box"><rect x="420" y="333" width="130" height="36" rx="10" /><text x="485" y="356">Run script</text></g>
+        <g className="arch-box arch-approve"><rect x="565" y="333" width="130" height="36" rx="10" /><text x="630" y="356">Approval</text></g>
+        <g className="arch-box"><rect x="710" y="333" width="130" height="36" rx="10" /><text x="775" y="356">Event trigger</text></g>
+        <g className="arch-box arch-person"><rect x="20" y="305" width="170" height="82" rx="12" /><text x="105" y="333">On-call person</text><text className="arch-sub" x="105" y="353">approves in NudgeBee,</text><text className="arch-sub" x="105" y="370">Slack, Teams or Chat</text></g>
+
+        <g className="arch-flow">
+          <path d="M95 76V120H445V160" /><text x="270" y="114">① order</text>
+          <path d="M420 180H355" markerStart="url(#arch-arrow)" /><text x="285" y="224">② flags per buyer</text><text x="285" y="240">⑦ new routing</text>
+          <path d="M530 160V92H335V76" /><text x="432" y="86">③ call text</text>
+          <path d="M250 48H170" /><text x="210" y="40">③ Hinglish call</text>
+          <path d="M555 160V104H775V76" markerStart="url(#arch-arrow)" /><text x="665" y="98">④ reply → intent</text>
+          <path d="M670 200V215" /><text className="arch-note" x="676" y="211">⑤ crash loop</text>
+          <path d="M760 251V333" /><text x="805" y="292">⑤ pod events</text>
+          <path d="M710 351H695" /><path d="M565 351H550" />
+          <path d="M190 378H630V369" /><text x="410" y="394">⑥ a person approves</text>
+          <path d="M485 333V251" /><text x="540" y="292">⑦ runs in our cluster</text>
+          <path d="M490 215V200" />
+        </g>
+      </svg>
+      <div className="arch-business">
+        <p><strong>Who buys it</strong> Indian D2C brands that sell a lot on cash on delivery during festive sales, and the shipping aggregators and 3PLs that run their orders.</p>
+        <p><strong>Why they pay</strong> every refused COD parcel is shipping paid both ways for no sale, and a jammed hub strands orders. Pakka cuts both, as a per-order subscription that plugs into their store.</p>
       </div>
     </motion.section>
   )
@@ -232,32 +261,35 @@ export function DemoGuide({ run, playback, onProof }: {
   playback: ReturnType<typeof useReplay>
   onProof: (sponsor: string) => void
 }) {
-  const { frame, index, playing, finished } = playback
+  const { frame, index, position, playing, finished } = playback
   const reduce = useReducedMotion()
-  const [clock, setClock] = useState({ index, elapsed: 0 })
-  const elapsed = clock.index === index ? clock.elapsed : 0
+  // Restarts from the playback position whenever it moves: a new step or a seek.
+  const [clock, setClock] = useState({ position, elapsed: position.elapsed })
+  const elapsed = clock.position === position ? clock.elapsed : position.elapsed
   const active = playing || finished
 
   useEffect(() => {
-    if (!active) return
+    if (!playing) return
     let last = performance.now()
     const timer = window.setInterval(() => {
       const now = performance.now()
-      setClock((previous) => ({ index, elapsed: (previous.index === index ? previous.elapsed : 0) + now - last }))
+      setClock((previous) => ({ position, elapsed: (previous.position === position ? previous.elapsed : position.elapsed) + now - last }))
       last = now
     }, 200)
     return () => window.clearInterval(timer)
-  }, [active, index])
+  }, [playing, position])
 
   const beats = script(run)[frame.id]
   const beatIndex = Math.max(0, beats.filter((item) => item.at <= elapsed).length - 1)
   const beat = beats[beatIndex]
-  const target = active ? beat.target : undefined
+  // Before the demo starts, the presenter points at the Play button instead of covering the page.
+  const waiting = !playing && index === 0
+  const target = waiting ? 'play' : active ? beat.target : undefined
   const rect = useTargetRect(target, playing)
   const shown = (playing || index > 0) && beat
   const transition = reduce ? { duration: 0 } : spring
   const pad = 8
-  const tip = rect && { x: rect.x + Math.min(rect.width * 0.3, 90), y: rect.y + Math.min(rect.height / 2, 34) }
+  const tip = rect && (waiting ? { x: rect.x + rect.width - 6, y: rect.y + rect.height - 4 } : { x: rect.x + Math.min(rect.width * 0.3, 90), y: rect.y + Math.min(rect.height / 2, 34) })
   const flip = tip ? tip.x < 190 : false
   const proof = active ? beat.proof : undefined
   const proofWidth = proof?.sponsor === 'NudgeBee' ? 720 : 320
@@ -280,7 +312,7 @@ export function DemoGuide({ run, playback, onProof }: {
             initial={{ opacity: 0, x: tip.x, y: tip.y }} exit={{ opacity: 0 }}
             animate={{ opacity: 1, x: tip.x, y: tip.y }} transition={transition}>
             <span className="presenter-ring" />
-            <Presenter label={beat.label ?? beat.actor} />
+            <Presenter label={waiting ? 'Press Play · sound on' : beat.label ?? beat.actor} />
           </motion.div>
         )}
         {proof && proofLeft != null && proofTop != null && (
@@ -294,7 +326,7 @@ export function DemoGuide({ run, playback, onProof }: {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {index === 0 && <Intro key="intro" playing={playing} />}
+        {index === 0 && playing && <Intro key="intro" />}
         {frame.id === 'end' && beatIndex === 1 && <Outro key="outro" />}
       </AnimatePresence>
       <AnimatePresence mode="wait">

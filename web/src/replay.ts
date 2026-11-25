@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { eventSchema, replySchema, stateSchema } from './model'
 import type { OpsEvent, OpsState, Reply } from './model'
 
-const stepId = z.enum(['start', 'order', 'call', 'reply', 'jam', 'crash', 'reroute', 'update', 'end'])
+const stepId = z.enum(['start', 'blocked', 'order', 'call', 'reply', 'jam', 'crash', 'priority', 'reroute', 'update', 'end'])
 const timestamp = z.iso.datetime({ offset: true })
 const audioFile = z.string().regex(/^[\w-]+\.wav$/).nullable()
 const recordingSchema = z.object({
@@ -75,6 +75,8 @@ export const replay = {
       if (id === 'reply' && reply?.intent === 'confirm') return order?.status === 'confirmed'
       if (id === 'reply' && reply?.intent === 'cancel') return order?.status === 'cancelled'
       if (id === 'reroute') return Boolean(order?.spoken_update)
+      // The high-value cart placed during the jam, already on the fallback courier.
+      if (id === 'priority') return state.orders.some((item) => item.priority && !item.background && item.courier !== 'swiftship')
       if (id === 'crash') return state.couriers.some((courier) => courier.id === 'swiftship' && courier.status === 'jammed')
       return false
     }

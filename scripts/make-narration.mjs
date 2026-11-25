@@ -6,7 +6,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { SarvamAIClient } from "../services/control-tower/node_modules/sarvamai/dist/esm/index.mjs";
 
 const LINES = {
-  start: ["Festive sales bring record orders, and a lot of waste. Parcels that come back, courier hubs that jam, and big carts stuck behind small ones. Pakka is smart logistics for D2C brands. It cuts wasted returns, puts high-value carts first at peak, and moves orders off a failing hub, on its own."],
+  start: ["Pakka is smart festive logistics for D2C brands, built to turn festive traffic into profit. You'll see three things. One, fewer wasted returns: Flagsmith segments every buyer, Sarvam A I confirms risky cash on delivery orders by voice, and repeat returners get no C O D. Two, at peak, high-value carts go first. Three, when a courier hub fails, NudgeBee catches it, a person approves, and Flagsmith reroutes every order live, with no deploy."],
+  blocked: ["First, a buyer who has returned three parcels before tries to pay cash on delivery. Flagsmith's r t o offender segment switches C O D off, so the buyer is offered prepaid instead."],
   order: [
     "A new order. Aditi Kulkarni in Hubballi, fourteen ninety nine rupees, cash on delivery.",
     "Pakka sends the buyer's traits to Flagsmith. Flagsmith matches the risky first C O D segment, and that segment's override of the C O D policy flag turns on a voice check before shipping.",
@@ -18,15 +19,16 @@ const LINES = {
     "In our Kubernetes cluster, the courier one pod falls into a crash loop.",
     "NudgeBee, connected to the cluster, detects the crash loop, and its event trigger starts our reroute automation.",
   ],
+  priority: ["Meanwhile, a four thousand nine hundred ninety nine rupee cart arrives for Bengaluru. Traffic is at peak, so Flagsmith's peak priority flag sends this high-value cart straight to courier two, without waiting for the fix."],
   reroute: [
-    "But nothing changes until a person says yes. The automation stops at an approval step, and the on-call engineer approves it in NudgeBee.",
+    "But nothing changes until a person says yes. The automation stops at an approval step, and the on-call engineer approves it in NudgeBee. The same approval can go to Slack, Microsoft Teams or Google Chat.",
     "Then NudgeBee's run script action calls Pakka, which rewrites the courier routing remote config through Flagsmith's admin A P I.",
     "Every in-flight order moves to courier two. No code deploy.",
   ],
   update: ["Sarvam A I tells the buyer about the new courier."],
   end: [
     "Flagsmith decides who gets C O D, and where orders go. NudgeBee watches the cluster, with a human approving every fix. Sarvam A I talks to the buyer.",
-    "How it connects. Flagsmith is self-hosted in Docker on our MacBook. NudgeBee is the hosted service, connected to our Kubernetes cluster, which runs in OrbStack on the same MacBook. Claude comes through the Claude A P I, and Sarvam through its cloud A P I. Fewer returns, no stuck orders, more profit. That's Pakka.",
+    "How it connects. Flagsmith is self-hosted in Docker on our MacBook. NudgeBee is the hosted service, connected to our Kubernetes cluster, which runs in OrbStack on the same MacBook. Claude comes through the Claude A P I, and Sarvam through its cloud A P I. Who pays for this? D2C brands that sell heavily on cash on delivery during festive sales, and the logistics partners that ship for them, because every refused parcel is shipping paid both ways for nothing. Fewer returns, no stuck orders, more profit. That's Pakka.",
   ],
 };
 const CALLS = { call: "confirm.wav", update: "update.wav" };
