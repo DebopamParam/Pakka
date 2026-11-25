@@ -8,7 +8,7 @@ import { BlurSwap } from './components/MotionText'
 import { CourierHealth, Orders, Routing, Timeline } from './components/OpsPanels'
 import { ReplayControls, ReplayProof } from './components/ReplayControls'
 import type { OpsEvent, OpsState, Order, Reply } from './model'
-import { replay, replayMode } from './replay'
+import { demoVideo, replay, replayMode } from './replay'
 import type { ProofImage, ReplayRun } from './replay'
 import { useReplay } from './useReplay'
 
@@ -208,7 +208,15 @@ function Dashboard({
           {faultAction}
         </section>
 
-        <BuyerPhone order={order} experience={experience} />
+        <div className="side">
+          <BuyerPhone order={order} experience={experience} />
+          {recorded && demoVideo && (
+            <section className="demo-video" aria-label="Demo video">
+              <iframe src={`https://www.youtube-nocookie.com/embed/${demoVideo}`} title="Pakka demo video"
+                allow="encrypted-media; picture-in-picture; fullscreen" allowFullScreen loading="lazy" />
+            </section>
+          )}
+        </div>
       </main>
     </>
   )

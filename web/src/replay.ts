@@ -27,6 +27,9 @@ export type ProofImage = z.infer<typeof proofSchema>[number]
 export type RecordedReply = Reply & { source: string }
 export type ReplayClip = { text: string; src: string | undefined; simulated: boolean }
 
+// YouTube id of the demo video, shown under the buyer view once it is uploaded.
+export const demoVideo = ''
+
 export const replayMode = import.meta.env.VITE_REPLAY === '1' || new URLSearchParams(window.location.search).get('replay') === '1'
 
 async function readAsset<T>(schema: z.ZodType<T>, path: string, signal: AbortSignal) {
