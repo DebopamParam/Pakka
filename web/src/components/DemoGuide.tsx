@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, PhoneCall, Route, ShoppingCart, Volume2 } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { rupees } from '../model'
@@ -37,11 +37,11 @@ function script(run: ReplayRun): Record<ReplayStepId, Beat[]> {
   const reply = run.reply
 
   return {
-    start: [{ at: 0, actor: 'Pakka', text: 'Diwali rush at Jaipur Kurta Co. Two couriers, both healthy.', target: 'couriers', label: 'Couriers' }],
+    start: [{ at: 0, actor: 'Pakka', text: 'Festive rush at Jaipur Kurta Co. Pakka turns the traffic into profit.' }],
     order: [
       { at: 0, actor: 'Pakka', text: `New order: ${buyer?.buyer_name ?? name}, ${buyer?.city ?? ''} — ${amount}, cash on delivery.`, target: `order-${run.orderId}`, label: 'New COD order' },
       {
-        at: 1800, actor: 'Flagsmith',
+        at: 7000, actor: 'Flagsmith',
         text: `Flagsmith puts ${name} in the ${segment ?? 'risky'} segment: confirm by voice before shipping.`,
         target: `order-${run.orderId}`, label: 'Flagsmith decides',
         proof: { sponsor: 'Flagsmith', title: 'COD rule per buyer segment', src: '/proof/flagsmith-segments.png' },
@@ -64,7 +64,7 @@ function script(run: ReplayRun): Record<ReplayStepId, Beat[]> {
         proof: run.proofs.pods_crash ? { sponsor: 'Kubernetes', title: 'kubectl get pods', text: run.proofs.pods_crash } : undefined,
       },
       {
-        at: 2400, actor: 'NudgeBee', text: 'NudgeBee detects the crash loop and starts the reroute runbook.',
+        at: 5000, actor: 'NudgeBee', text: 'NudgeBee detects the crash loop and starts the reroute runbook.',
         target: 'courier-swiftship', label: 'NudgeBee detects',
         proof: { sponsor: 'NudgeBee', title: 'Crash loop detected in our cluster', src: '/proof/nudgebee-detected.png' },
       },
@@ -76,11 +76,11 @@ function script(run: ReplayRun): Record<ReplayStepId, Beat[]> {
         proof: { sponsor: 'NudgeBee', title: 'Waiting for approval', src: '/proof/nudgebee-approval.png' },
       },
       {
-        at: 2200, actor: 'Flagsmith', text: `The runbook flips Flagsmith's courier_routing: pincodes ${prefixes ?? '56, 58'} → DakExpress.`,
+        at: 3500, actor: 'Flagsmith', text: `The runbook flips Flagsmith's courier_routing: pincodes ${prefixes ?? '56, 58'} → DakExpress.`,
         target: 'routing', label: 'Flagsmith reroutes',
         proof: { sponsor: 'NudgeBee', title: 'Runbook run completed', src: '/proof/nudgebee-completed.png' },
       },
-      { at: 4200, actor: 'Pakka', text: `${moved ?? 'The'} in-flight orders move to DakExpress. No code deploy.`, target: 'orders', label: 'Orders moved' },
+      { at: 9000, actor: 'Pakka', text: `${moved ?? 'The'} in-flight orders move to DakExpress. No code deploy.`, target: 'orders', label: 'Orders moved' },
     ],
     update: [{
       at: 0, actor: 'Sarvam AI', hinglish: true, target: 'voice-update', label: `Sarvam tells ${name}`,
@@ -88,8 +88,7 @@ function script(run: ReplayRun): Record<ReplayStepId, Beat[]> {
       gloss: `Sarvam AI tells ${name}: “The Bengaluru hub is delayed, so your ${amount} order now ships with DakExpress.”`,
     }],
     end: [
-      { at: 0, actor: 'Pakka', text: `Pakka makes it pakka. ${moved ?? 'Every'} orders rerouted, ${name} kept in the loop.`, target: 'orders', label: 'Delivered pakka' },
-      { at: 4500, actor: 'Pakka', text: `Pakka makes it pakka. ${moved ?? 'Every'} orders rerouted, ${name} kept in the loop.` },
+      { at: 0, actor: 'Pakka', text: `Fewer returns, no stuck orders: ${moved ?? 'every'} orders rerouted, ${name} kept in the loop.`, target: 'orders', label: 'Delivered pakka' },
     ],
   }
 }
@@ -125,6 +124,33 @@ function useTargetRect(target: string | undefined, scroll: boolean) {
   }, [target])
 
   return rect
+}
+
+const POINTS = [
+  { icon: PhoneCall, title: 'Confirm risky COD before it ships', text: 'Flagsmith segments the buyer, Sarvam AI calls in Hinglish, Claude reads the answer.' },
+  { icon: Route, title: 'Move orders off a failing courier hub', text: 'NudgeBee catches the crash, a person approves, Flagsmith reroutes. No deploy.' },
+  { icon: ShoppingCart, title: 'High-value carts first at peak', text: 'Next on the roadmap.', next: true },
+]
+
+function Intro({ playing }: { playing: boolean }) {
+  return (
+    <motion.section className="tour-intro" aria-label="What Pakka does"
+      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, scale: 0.98 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+      <p className="tour-intro-eyebrow">Pakka · festive COD control tower</p>
+      <h2>More profit from festive traffic.</h2>
+      <p className="tour-intro-lede">1 in 4 cash-on-delivery parcels comes back, and jammed courier hubs stall the rest. Pakka manages the logistics for Indian D2C brands, automatically.</p>
+      <ul>
+        {POINTS.map(({ icon: Icon, title, text, next }) => (
+          <li key={title} className={next ? 'tour-intro-next' : undefined}>
+            <span className="tour-intro-icon"><Icon size={18} /></span>
+            <div><strong>{title}{next && <em>Next</em>}</strong><p>{text}</p></div>
+          </li>
+        ))}
+      </ul>
+      {!playing && <p className="tour-intro-hint"><Volume2 size={14} /> Press Play the demo, with sound on</p>}
+    </motion.section>
+  )
 }
 
 function Presenter({ label }: { label: string }) {
@@ -202,6 +228,9 @@ export function DemoGuide({ run, playback, onProof }: {
             <span className="tour-proof-hint">Click to enlarge</span>
           </motion.button>
         )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {index === 0 && <Intro key="intro" playing={playing} />}
       </AnimatePresence>
       <AnimatePresence mode="wait">
         {shown && (

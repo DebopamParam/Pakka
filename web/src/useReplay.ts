@@ -3,7 +3,7 @@ import type { ReplayRun, ReplayStepId } from './replay'
 
 // Audio steps also wait for their clip to end.
 export const stepDurations: Record<ReplayStepId, number> = {
-  start: 3000, order: 4500, call: 1500, reply: 4000, jam: 3500, crash: 4500, reroute: 6000, update: 1500, end: 6000,
+  start: 3000, order: 4500, call: 1500, reply: 4000, jam: 3500, crash: 4500, reroute: 6000, update: 1500, end: 3000,
 }
 type Position = { index: number; elapsed: number; audioOffset: number }
 
@@ -69,7 +69,7 @@ export function useReplay(run: ReplayRun) {
   }
 
   useEffect(() => {
-    if (!playing || finished) return
+    if (!playing) return
 
     const startedAt = performance.now()
     const context = audio.current
@@ -81,9 +81,11 @@ export function useReplay(run: ReplayRun) {
     let audioTimer: number | undefined
     function advance() {
       if (!active || !timeDone || !audioDone) return
-      const index = position.index + 1
-      if (index === run.frames.length - 1) setPlaying(false)
-      setPosition({ index, elapsed: 0, audioOffset: 0 })
+      if (finished) {
+        setPlaying(false)
+        return
+      }
+      setPosition({ index: position.index + 1, elapsed: 0, audioOffset: 0 })
     }
     const timer = window.setTimeout(() => {
       timeDone = true

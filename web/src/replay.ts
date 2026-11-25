@@ -87,7 +87,8 @@ export const replay = {
         ...step,
         state: (following ?? current ?? snapshots[0]).state,
         events: events.filter((event) => Date.parse(event.at) <= at).slice(0, 100),
-        audio: step.id === 'call' ? confirm.src : step.id === 'update' ? update.src : undefined,
+        // The narrator's line, followed on the call and update steps by the recorded Sarvam call.
+        audio: `/replay/narration/${step.id}.wav`,
       }
     })
 
