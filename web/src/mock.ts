@@ -21,8 +21,8 @@ let current: OpsState = {
   routing: initialRouting,
   incidents: [],
   couriers: [
-    { id: 'swiftship', name: 'SwiftShip', hub: 'Bengaluru hub', status: 'ok', p95_ms: 124, error_rate: 0.006, simulated: true },
-    { id: 'dakexpress', name: 'DakExpress', hub: 'Backup courier', status: 'ok', p95_ms: 158, error_rate: 0.003, simulated: true },
+    { id: 'swiftship', name: 'Courier 1', hub: 'Bengaluru hub', status: 'ok', p95_ms: 124, error_rate: 0.006, simulated: true },
+    { id: 'dakexpress', name: 'Courier 2', hub: 'Backup courier', status: 'ok', p95_ms: 158, error_rate: 0.003, simulated: true },
   ],
   orders: [
     { ...sample, id: 'PK-1043' },
@@ -46,7 +46,7 @@ function publish(type: OpsEvent['type'], actor: OpsEvent['actor'], title: string
 
 const initialTime = Date.now()
 publish('order', 'pakka', 'Hubballi COD order placed', 'PK-1043 · ₹1,499 · Jaipur Kurta Co.', new Date(initialTime - 8000).toISOString())
-publish('flag', 'flagsmith', 'Risky first COD matched', 'Prefix 58 → SwiftShip · voice confirmation required', new Date(initialTime - 4000).toISOString())
+publish('flag', 'flagsmith', 'Risky first COD matched', 'Prefix 58 → Courier 1 · voice confirmation required', new Date(initialTime - 4000).toISOString())
 publish('voice', 'sarvam', 'Hinglish voice prompt ready', 'PK-1043 · Simulated audio', new Date(initialTime - 1000).toISOString())
 
 function changeOrder(id: string, patch: Partial<Order>) {
@@ -85,7 +85,7 @@ function reroute() {
     ...current,
     routing: { by_prefix: { '30': 'dakexpress', '56': 'dakexpress', '58': 'dakexpress' }, fallback: 'dakexpress' },
   }
-  publish('flag', 'flagsmith', 'Routing updated', 'Prefixes 56 and 58 → DakExpress')
+  publish('flag', 'flagsmith', 'Routing updated', 'Prefixes 56 and 58 → Courier 2')
   for (const order of orders) {
     const updated = { ...order, courier: 'dakexpress' }
     changeOrder(order.id, {
@@ -160,12 +160,12 @@ export const mock = {
     pendingReroute.clear()
     replaceCourier(on)
     if (!on) {
-      publish('courier', 'courier', 'Bengaluru hub recovered', 'SwiftShip is healthy · routing stays on DakExpress if rerouted')
+      publish('courier', 'courier', 'Bengaluru hub recovered', 'Courier 1 is healthy · routing stays on Courier 2 if rerouted')
       return
     }
-    publish('incident', 'courier', 'Bengaluru hub jammed', 'SwiftShip · 3,420 ms p95 · 43% errors · simulated')
-    after(1100, () => publish('incident', 'nudgebee', 'NudgeBee detected the jam', 'Kubernetes marked SwiftShip unhealthy'))
-    after(2300, () => publish('ops', 'nudgebee', 'Waiting for approval', 'Reroute affected pincodes to DakExpress'))
+    publish('incident', 'courier', 'Bengaluru hub jammed', 'Courier 1 · 3,420 ms p95 · 43% errors · simulated')
+    after(1100, () => publish('incident', 'nudgebee', 'NudgeBee detected the jam', 'Kubernetes marked Courier 1 unhealthy'))
+    after(2300, () => publish('ops', 'nudgebee', 'Waiting for approval', 'Reroute affected pincodes to Courier 2'))
     after(4100, () => {
       publish('ops', 'nudgebee', 'Demo approval received', 'Reroute runbook started · simulated approval')
       reroute()

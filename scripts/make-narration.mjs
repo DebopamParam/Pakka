@@ -13,18 +13,21 @@ const LINES = {
   ],
   call: ["Sarvam A I calls the buyer in Hinglish."],
   reply: ["The buyer says yes, send it.", "Claude reads the intent as confirm, and the order ships."],
-  jam: ["Now, trouble. SwiftShip's Bengaluru hub jams, and latency spikes."],
+  jam: ["Now, trouble. Courier one's Bengaluru hub jams, and latency spikes."],
   crash: [
-    "In our Kubernetes cluster, the SwiftShip pod falls into a crash loop.",
+    "In our Kubernetes cluster, the courier one pod falls into a crash loop.",
     "NudgeBee, connected to the cluster, detects the crash loop, and its event trigger starts our reroute automation.",
   ],
   reroute: [
     "But nothing changes until a person says yes. The automation stops at an approval step, and the on-call engineer approves it in NudgeBee.",
     "Then NudgeBee's run script action calls Pakka, which rewrites the courier routing remote config through Flagsmith's admin A P I.",
-    "Every in-flight order moves to DakExpress. No code deploy.",
+    "Every in-flight order moves to courier two. No code deploy.",
   ],
   update: ["Sarvam A I tells the buyer about the new courier."],
-  end: ["Flagsmith decides who gets C O D, and where orders go. NudgeBee watches the cluster, with a human approving every fix. Sarvam A I talks to the buyer. Fewer returns, no stuck orders, more profit. That's Pakka."],
+  end: [
+    "Flagsmith decides who gets C O D, and where orders go. NudgeBee watches the cluster, with a human approving every fix. Sarvam A I talks to the buyer.",
+    "How it connects. Flagsmith is self-hosted in Docker on our MacBook. NudgeBee is the hosted service, connected to our Kubernetes cluster, which runs in OrbStack on the same MacBook. Claude comes through the Claude A P I, and Sarvam through its cloud A P I. Fewer returns, no stuck orders, more profit. That's Pakka.",
+  ],
 };
 const CALLS = { call: "confirm.wav", update: "update.wav" };
 

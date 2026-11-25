@@ -11,13 +11,13 @@ const WINDOW = 10;
 const couriers = {
   swiftship: {
     id: "swiftship",
-    name: "SwiftShip",
+    name: "Courier 1",
     hub: "Bengaluru",
     url: process.env.COURIER_SWIFTSHIP_URL || "http://swiftship.pakka.svc:8080",
   },
   dakexpress: {
     id: "dakexpress",
-    name: "DakExpress",
+    name: "Courier 2",
     hub: "Pune",
     url: process.env.COURIER_DAKEXPRESS_URL || "http://dakexpress.pakka.svc:8080",
   },
@@ -391,7 +391,7 @@ const routes = [
         emit("incident", `Incident ${inc.id} mitigated`, `traffic rerouted ${from} → ${to}`, "nudgebee");
       }
     }
-    emit("ops", result.changed ? `Rerouted ${from} → ${to}` : `Already rerouted ${from} → ${to}`, `${affected.length} in-flight order(s) moved${firsts ? `, ${firsts} high-value first` : ""}`, "pakka");
+    emit("ops", `${result.changed ? "Rerouted" : "Already rerouted"} ${couriers[from]?.name || from} → ${couriers[to]?.name || to}`, `${affected.length} in-flight order(s) moved${firsts ? `, ${firsts} high-value first` : ""}`, "pakka");
     send(res, 200, { ok: true, changed: result.changed, prefixes: result.prefixes, routing: result.routing, affected_orders: affected.map((o) => o.id) });
   }],
 

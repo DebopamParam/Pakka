@@ -137,7 +137,7 @@ function LiveApp() {
     </>}
     faultAction={<>
       <div className="fault-box">
-        <div className="fault-label"><span className="fault-icon"><Zap size={15} /></span><div><strong>Fault</strong><p>SwiftShip · Bengaluru hub</p></div></div>
+        <div className="fault-label"><span className="fault-icon"><Zap size={15} /></span><div><strong>Fault</strong><p>Courier 1 · Bengaluru hub</p></div></div>
         <motion.button className="fault-button" type="button" whileTap={press} whileHover={hover} transition={spring}
           disabled={faultPending} onClick={() => void changeFault()}>
           {faultOn ? <RotateCcw size={14} /> : <Zap size={14} />}

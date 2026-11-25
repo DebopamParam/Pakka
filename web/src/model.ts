@@ -127,8 +127,8 @@ export const statusLabels: Record<Order['status'], string> = {
 }
 
 export const courierNames: Record<string, string> = {
-  swiftship: 'SwiftShip',
-  dakexpress: 'DakExpress',
+  swiftship: 'Courier 1',
+  dakexpress: 'Courier 2',
 }
 
 export function updateText(order: Order) {

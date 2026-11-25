@@ -38,6 +38,11 @@ async function readAsset<T>(schema: z.ZodType<T>, path: string, signal: AbortSig
   return schema.parse(await response.json())
 }
 
+// The run was recorded with the couriers' code names; show them as Courier 1 and Courier 2.
+const plainNames = (text: string) => text
+  .replace(/SwiftShip/g, 'Courier 1').replace(/DakExpress/g, 'Courier 2')
+  .replace(/\bswiftship\b/g, 'courier 1').replace(/\bdakexpress\b/g, 'courier 2')
+
 function recordedReply(events: OpsEvent[], id: string): RecordedReply | undefined {
   for (const event of events) {
     if (event.actor !== 'buyer') continue
@@ -54,6 +59,7 @@ export const replay = {
     const run = await readAsset(recordingSchema, '/replay/run.json', signal)
     const snapshots = [...run.states].sort((a, b) => Date.parse(a.at) - Date.parse(b.at))
     const events = [...run.events].sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
+      .map((event) => ({ ...event, title: plainNames(event.title), detail: plainNames(event.detail) }))
     const latestFirst = [...snapshots].reverse()
     const reply = recordedReply(events, run.order_id)
     const clip = (kind: 'confirm' | 'update'): ReplayClip => ({
@@ -85,6 +91,7 @@ export const replay = {
       })
       return {
         ...step,
+        label: plainNames(step.label),
         state: (following ?? current ?? snapshots[0]).state,
         events: events.filter((event) => Date.parse(event.at) <= at).slice(0, 100),
         // The narrator's line, followed on the call and update steps by the recorded Sarvam call.

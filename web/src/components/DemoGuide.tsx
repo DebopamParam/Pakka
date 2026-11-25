@@ -1,4 +1,4 @@
-import { ArrowUpRight, PhoneCall, Route, ShoppingCart, UserCheck, Volume2 } from 'lucide-react'
+import { ArrowUpRight, AudioLines, Flag, PhoneCall, Radar, Route, ShoppingCart, Sparkles, UserCheck, Volume2 } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { rupees } from '../model'
@@ -45,7 +45,7 @@ function steps(run: ReplayRun): Record<ReplayStepId, Beat[]> {
   const find = (pattern: RegExp) => last.events.map((event) => pattern.exec(`${event.title} | ${event.detail}`)).find(Boolean)
   const segment = find(new RegExp(`Flagsmith evaluated ${buyer?.buyer_name ?? ''} \\| segment (\\w+)`))?.[1]
   const p95 = find(/hub jammed \| p95 (\d+) ms/)?.[1]
-  const moved = find(/Rerouted \w+ → \w+ \| (\d+) in-flight/)?.[1]
+  const moved = find(/Rerouted .+? → .+? \| (\d+) in-flight/)?.[1]
   const prefixes = find(/courier_routing updated \| prefixes ([\d, ]+) now/)?.[1]
   const reply = run.reply
 
@@ -71,10 +71,10 @@ function steps(run: ReplayRun): Record<ReplayStepId, Beat[]> {
       { at: 0, actor: name, hinglish: true, text: `“${reply?.transcript ?? ''}”`, gloss: '“Yes, no problem, send it.”', target: 'reply', label: `${name} replies` },
       { at: 2000, actor: reply?.source === 'claude' ? 'Claude' : 'Pakka', text: `${reply?.source === 'claude' ? 'Claude' : 'Pakka'} reads the reply as “${reply?.intent ?? 'confirm'}”. Order ${run.orderId} is ${reply?.intent === 'cancel' ? 'cancelled' : 'confirmed'}.`, target: 'reply', label: 'Claude reads intent', feature: 'Claude · reads the intent of the reply' },
     ],
-    jam: [{ at: 0, actor: 'SwiftShip', text: `Trouble: SwiftShip's Bengaluru hub jams${p95 ? ` — p95 latency hits ${Number(p95).toLocaleString('en-IN')} ms` : ''}.`, target: 'courier-swiftship', label: 'Hub jams' }],
+    jam: [{ at: 0, actor: 'Courier 1', text: `Trouble: Courier 1's Bengaluru hub jams${p95 ? ` — p95 latency hits ${Number(p95).toLocaleString('en-IN')} ms` : ''}.`, target: 'courier-swiftship', label: 'Hub jams' }],
     crash: [
       {
-        at: 0, actor: 'Kubernetes', text: 'In our Kubernetes cluster, the SwiftShip pod falls into CrashLoopBackOff.',
+        at: 0, actor: 'Kubernetes', text: 'In our Kubernetes cluster, the Courier 1 pod falls into CrashLoopBackOff.',
         target: 'courier-swiftship', label: 'Pod crashes',
         proof: run.proofs.pods_crash ? { sponsor: 'Kubernetes', title: 'kubectl get pods', text: run.proofs.pods_crash } : undefined,
       },
@@ -82,7 +82,7 @@ function steps(run: ReplayRun): Record<ReplayStepId, Beat[]> {
         at: 5000, actor: 'NudgeBee', text: 'NudgeBee detects the crash loop and starts the reroute runbook.',
         feature: 'NudgeBee · Kubernetes event detection → automation event trigger',
         target: 'courier-swiftship', label: 'NudgeBee detects',
-        proof: { sponsor: 'NudgeBee', title: 'Crash loop detected in our cluster', src: '/proof/nudgebee-detected.png' },
+        proof: { sponsor: 'NudgeBee', title: 'Crash loop detected in our cluster', src: '/proof/nudgebee-detected-crop.png' },
       },
     ],
     reroute: [
@@ -90,16 +90,16 @@ function steps(run: ReplayRun): Record<ReplayStepId, Beat[]> {
         at: 0, actor: 'NudgeBee', human: true, text: 'Nothing changes until a person says yes: the automation stops at its approval step, and on-call approves it.',
         target: 'routing', label: 'A person approves',
         feature: 'NudgeBee · approval step in the automation',
-        proof: { sponsor: 'NudgeBee', title: 'Waiting for on-call approval', src: '/proof/nudgebee-approval.png' },
+        proof: { sponsor: 'NudgeBee', title: 'Waiting for on-call approval', src: '/proof/nudgebee-approval-crop.png' },
       },
       {
-        at: 3500, actor: 'Flagsmith', text: `NudgeBee's script calls Pakka, which rewrites courier_routing in Flagsmith: pincodes ${prefixes ?? '56, 58'} → DakExpress.`,
+        at: 3500, actor: 'Flagsmith', text: `NudgeBee's script calls Pakka, which rewrites courier_routing in Flagsmith: pincodes ${prefixes ?? '56, 58'} → Courier 2.`,
         target: 'routing', label: 'Flagsmith reroutes',
         feature: 'NudgeBee · run-script action → Flagsmith · Admin API updates the courier_routing remote config',
-        proof: { sponsor: 'NudgeBee', title: 'Event trigger → approval → run script', src: '/proof/nudgebee-automation.png' },
+        proof: { sponsor: 'NudgeBee', title: 'Event trigger → approval → run script', src: '/proof/nudgebee-automation-crop.png' },
       },
       {
-        at: 9000, actor: 'Pakka', text: `${moved ?? 'The'} in-flight orders move to DakExpress. No code deploy.`, target: 'orders', label: 'Orders moved',
+        at: 9000, actor: 'Pakka', text: `${moved ?? 'The'} in-flight orders move to Courier 2. No code deploy.`, target: 'orders', label: 'Orders moved',
         feature: 'Flagsmith · remote config, changed live',
         proof: { sponsor: 'Flagsmith', title: 'courier_routing remote config', src: '/proof/flagsmith-routing.png' },
       },
@@ -107,11 +107,12 @@ function steps(run: ReplayRun): Record<ReplayStepId, Beat[]> {
     update: [{
       at: 0, actor: 'Sarvam AI', hinglish: true, target: 'voice-update', label: `Sarvam tells ${name}`,
       text: `“${clipLine(run.update.text, 'DakExpress')}”`,
-      gloss: `Sarvam AI tells ${name}: “The Bengaluru hub is delayed, so your ${amount} order now ships with DakExpress.”`,
+      gloss: `Sarvam AI tells ${name}: “The Bengaluru hub is delayed, so your ${amount} order now ships with Courier 2 (DakExpress).”`,
       feature: 'Sarvam AI · Bulbul text-to-speech in Hinglish',
     }],
     end: [
       { at: 0, actor: 'Pakka', text: `Fewer returns, no stuck orders: ${moved ?? 'every'} orders rerouted, ${name} kept in the loop.`, target: 'orders', label: 'Delivered pakka', feature: 'Also in Flagsmith: voice_confirm_enabled kill switch · prepaid_nudge A/B test · peak_priority' },
+      { at: 9000, actor: 'Pakka', text: 'How it connects: self-hosted Flagsmith, hosted NudgeBee, Kubernetes on OrbStack, the Claude API and Sarvam AI.' },
     ],
   }
 }
@@ -176,6 +177,43 @@ function Intro({ playing }: { playing: boolean }) {
   )
 }
 
+function Node({ icon: Icon, title, text }: { icon: typeof Flag; title: string; text: string }) {
+  return (
+    <div className="arch-node">
+      <span className="tour-intro-icon"><Icon size={16} /></span>
+      <div><strong>{title}</strong><p>{text}</p></div>
+    </div>
+  )
+}
+
+function Outro() {
+  return (
+    <motion.section className="tour-intro tour-outro" aria-label="How the pieces connect"
+      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, scale: 0.98 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+      <p className="tour-intro-eyebrow">Architecture</p>
+      <h2>How the pieces connect.</h2>
+      <div className="arch">
+        <div className="arch-top"><Node icon={AudioLines} title="Sarvam AI · cloud API" text="Hinglish calls to the buyer" /></div>
+        <span className="arch-link arch-v arch-top-link">voice calls ↕</span>
+        <div className="arch-left"><Node icon={Flag} title="Flagsmith · self-hosted" text="Docker on our MacBook" /></div>
+        <span className="arch-link arch-left-link">flags per buyer →<br />← routing via Admin API</span>
+        <div className="arch-cluster">
+          <p>Kubernetes · OrbStack on our MacBook</p>
+          <div className="arch-pods"><span className="arch-pod arch-pakka">Pakka control tower</span><span className="arch-pod">Courier 1</span><span className="arch-pod">Courier 2</span></div>
+        </div>
+        <span className="arch-link arch-right-link">← reply intent<br />buyer's reply →</span>
+        <div className="arch-right"><Node icon={Sparkles} title="Claude API" text="Reads what the buyer meant" /></div>
+        <span className="arch-link arch-v arch-bottom-link">pod events ↓ · ↑ approved reroute script</span>
+        <div className="arch-bottom">
+          <Node icon={Radar} title="NudgeBee · hosted" text="Watches the cluster, runs the automation" />
+          <span className="arch-human"><UserCheck size={14} /> A person approves every fix</span>
+        </div>
+      </div>
+    </motion.section>
+  )
+}
+
 function Presenter({ label }: { label: string }) {
   return (
     <div className="presenter-figure">
@@ -222,9 +260,11 @@ export function DemoGuide({ run, playback, onProof }: {
   const tip = rect && { x: rect.x + Math.min(rect.width * 0.3, 90), y: rect.y + Math.min(rect.height / 2, 34) }
   const flip = tip ? tip.x < 190 : false
   const proof = active ? beat.proof : undefined
-  const proofWidth = beat.human ? 520 : 320
+  const proofWidth = proof?.sponsor === 'NudgeBee' ? 720 : 320
   const proofLeft = rect && (rect.x + rect.width + proofWidth + 16 < window.innerWidth ? rect.x + rect.width + 16 : Math.max(16, rect.x - proofWidth - 16))
-  const proofTop = rect && Math.min(Math.max(16, rect.y), window.innerHeight - 440)
+  // The large NudgeBee screenshots sit just below the replay controls, clear of the caption.
+  const controls = document.querySelector('.replay-toolbar')?.getBoundingClientRect().bottom ?? 0
+  const proofTop = rect && (proofWidth > 320 ? Math.max(16, controls + 12) : Math.min(Math.max(16, rect.y), window.innerHeight - 440))
 
   return (
     <>
@@ -244,7 +284,7 @@ export function DemoGuide({ run, playback, onProof }: {
           </motion.div>
         )}
         {proof && proofLeft != null && proofTop != null && (
-          <motion.button key={proof.title} type="button" className={`tour-proof${beat.human ? ' tour-proof-human' : ''}`} style={{ left: proofLeft, top: proofTop }}
+          <motion.button key={proof.title} type="button" className={`tour-proof${proof.sponsor === 'NudgeBee' ? ' tour-proof-wide' : ''}${beat.human ? ' tour-proof-human' : ''}`} style={{ left: proofLeft, top: proofTop }}
             initial={reduce ? false : { opacity: 0, scale: 0.92, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }}
             transition={transition} onClick={() => onProof(proof.sponsor)}>
             <span className="tour-proof-head"><strong>{proof.sponsor}</strong>{proof.title}</span>
@@ -255,6 +295,7 @@ export function DemoGuide({ run, playback, onProof }: {
       </AnimatePresence>
       <AnimatePresence>
         {index === 0 && <Intro key="intro" playing={playing} />}
+        {frame.id === 'end' && beatIndex === 1 && <Outro key="outro" />}
       </AnimatePresence>
       <AnimatePresence mode="wait">
         {shown && (

@@ -8,7 +8,7 @@ const steps: Record<ReplayStepId, { name: string; actor: string }> = {
   order: { name: 'Order', actor: 'Flagsmith' },
   call: { name: 'Call', actor: 'Sarvam AI' },
   reply: { name: 'Reply', actor: 'Buyer' },
-  jam: { name: 'Jam', actor: 'SwiftShip' },
+  jam: { name: 'Jam', actor: 'Courier 1' },
   crash: { name: 'Crash', actor: 'Kubernetes' },
   reroute: { name: 'Reroute', actor: 'NudgeBee + Flagsmith' },
   update: { name: 'Update', actor: 'Sarvam AI' },
