@@ -69,12 +69,12 @@ function HealthCard({ courier }: { courier: Courier }) {
   )
 }
 
-export function CourierHealth({ couriers }: { couriers: Courier[] }) {
+export function CourierHealth({ couriers, recorded = false }: { couriers: Courier[]; recorded?: boolean }) {
   return (
     <section aria-labelledby="courier-heading" className="courier-section">
       <div className="section-line">
         <h2 id="courier-heading"><Activity size={17} /> Courier health</h2>
-        <span className="section-note mono">2s polling</span>
+        <span className="section-note mono">{recorded ? 'Recorded telemetry' : '2s polling'}</span>
       </div>
       {couriers.length > 0
         ? <div className="courier-grid">{couriers.map((courier) => <HealthCard key={courier.id} courier={courier} />)}</div>
@@ -159,14 +159,14 @@ export function Routing({ routing, changed }: { routing: OpsState['routing'] | u
   )
 }
 
-export function Timeline({ events, connected }: { events: OpsEvent[]; connected: boolean }) {
+export function Timeline({ events, connected, recorded = false }: { events: OpsEvent[]; connected: boolean; recorded?: boolean }) {
   const reduce = useReducedMotion()
   return (
     <section className="dark-panel timeline-panel" aria-labelledby="timeline-heading">
       <div className="panel-heading">
         <h2 id="timeline-heading"><Radio size={16} /> Activity</h2>
         <span className={`dark-badge feed-indicator ${connected ? 'connected' : ''}`}>
-          <span className="state-dot" /><BlurSwap text={connected ? 'Live feed' : 'Connecting'} />
+          <span className="state-dot" /><BlurSwap text={recorded ? 'Recorded feed' : connected ? 'Live feed' : 'Connecting'} />
         </span>
       </div>
       {events.length > 0 ? (

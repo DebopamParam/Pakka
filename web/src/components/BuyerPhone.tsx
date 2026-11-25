@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, errorText, mockMode } from '../api'
 import { courierNames, rupees, updateText } from '../model'
 import type { Order, Reply, Voice } from '../model'
+import type { RecordedReply, ReplayClip } from '../replay'
 import { BlurSwap } from './MotionText'
 import { StatusChip } from './OpsPanels'
 import { RecordButton } from './RecordButton'
@@ -26,22 +27,34 @@ function getVoice(cache: Map<string, Promise<Voice>>, key: string, id: string) {
 type Message = {
   text: string
   audio_wav_base64?: string | null
+  src?: string
+  queued?: boolean
   simulated?: boolean
 }
 
-function VoiceCard({ title, message, update = false, loading, failure, retry }: {
+function VoiceCard({ title, message, update = false, loading, failure, retry, onPlay, recorded = false, demoPlaying = false }: {
   title: string
   message?: Message
   update?: boolean
   loading?: boolean
   failure?: string
   retry?: () => void
+  onPlay?: () => void
+  recorded?: boolean
+  demoPlaying?: boolean
 }) {
   const [playing, setPlaying] = useState(false)
   const [failedPlayback, setFailedPlayback] = useState(false)
   const audio = useRef<HTMLAudioElement>(null)
-  const source = message?.audio_wav_base64
+  const source = message?.src ?? (message?.audio_wav_base64 && `data:audio/wav;base64,${message.audio_wav_base64}`)
   const Icon = update ? Truck : PhoneIncoming
+  const unavailable = message?.queued ? 'Update queued' : recorded
+    ? message?.simulated ? 'Simulated voice in this recording' : 'Recorded audio unavailable'
+    : message?.simulated || !update ? 'Voice simulated — Sarvam credits pending' : 'Voice audio unavailable'
+
+  useEffect(() => {
+    if (demoPlaying) audio.current?.pause()
+  }, [demoPlaying])
 
   return (
     <article className={`voice-card ${update ? 'voice-update' : ''}`}>
@@ -50,9 +63,12 @@ function VoiceCard({ title, message, update = false, loading, failure, retry }: 
         <h3>{title}<span>{update ? 'Delivery update' : 'Hinglish · voice call'}</span></h3>
         {source && <audio
           ref={audio}
-          src={`data:audio/wav;base64,${source}`}
+          src={source}
           preload="none"
-          onPlay={() => setPlaying(true)}
+          onPlay={() => {
+            setPlaying(true)
+            onPlay?.()
+          }}
           onPause={() => setPlaying(false)}
           onEnded={() => setPlaying(false)}
           onError={() => setFailedPlayback(true)}
@@ -83,7 +99,7 @@ function VoiceCard({ title, message, update = false, loading, failure, retry }: 
       {!loading && !failure && message && (message.simulated || !source) && (
         <p className="voice-note">
           <AudioLines size={13} />
-          {message.simulated || !update ? 'Voice simulated — Sarvam credits pending' : 'Voice audio unavailable'}
+          {unavailable}
         </p>
       )}
     </article>
@@ -95,7 +111,6 @@ function OrderExperience({ order, onReply, reply }: {
   onReply: (id: string, reply: Reply) => void
   reply: Reply | undefined
 }) {
-  const reduce = useReducedMotion()
   const [prompt, setPrompt] = useState<Voice>()
   const [update, setUpdate] = useState<Voice>()
   const [promptError, setPromptError] = useState('')
@@ -170,14 +185,7 @@ function OrderExperience({ order, onReply, reply }: {
 
   return (
     <div className="phone-scroll">
-      <div className="buyer-identity">
-        <span className="buyer-mark"><Package size={17} strokeWidth={1.7} /></span>
-        <div>
-          <strong>{order.buyer_name}</strong>
-          <p>{order.city} <span aria-hidden="true">·</span> {rupees.format(order.value)} {order.cod ? 'COD' : 'prepaid'}</p>
-        </div>
-        <span className="buyer-id mono">{order.id}</span>
-      </div>
+      <BuyerIdentity order={order} />
 
       {showPrompt && (fetchPrompt || prompt) && <VoiceCard
         title={canReply ? 'Pakka is calling' : 'Pakka voice call'}
@@ -199,19 +207,7 @@ function OrderExperience({ order, onReply, reply }: {
         </div>
       )}
       {replyError && <p className="reply-error" role="status"><CircleHelp size={14} /> {replyError}</p>}
-      {reply && (
-        <motion.div
-          className="reply-result"
-          role="status"
-          initial={reduce ? false : { opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-        >
-          {reply.intent === 'confirm' ? <Check size={16} /> : <Mic size={15} />}
-          <div><span>Buyer transcript</span><strong>{reply.transcript ? `“${reply.transcript}”` : 'No transcript'}</strong></div>
-          <span className="intent mono">{reply.intent}</span>
-        </motion.div>
-      )}
+      {reply && <ReplyResult reply={reply} />}
 
       {updateCopy && (
         <VoiceCard
@@ -226,19 +222,79 @@ function OrderExperience({ order, onReply, reply }: {
       )}
       {!showPrompt && !updateCopy && <div className="phone-empty compact"><Package size={24} /><p>There’s no voice call for this order.</p></div>}
 
-      <div className="buyer-footer">
-        <StatusChip status={order.status} />
-        <span><ArrowRight size={12} /> {courierNames[order.courier] ?? order.courier}</span>
-      </div>
+      <BuyerFooter order={order} />
     </div>
   )
 }
 
-export function BuyerPhone({ order, reply, onReply }: {
-  order: Order | undefined
-  reply: Reply | undefined
+function BuyerIdentity({ order }: { order: Order }) {
+  return (
+    <div className="buyer-identity">
+      <span className="buyer-mark"><Package size={17} strokeWidth={1.7} /></span>
+      <div>
+        <strong>{order.buyer_name}</strong>
+        <p>{order.city} <span aria-hidden="true">·</span> {rupees.format(order.value)} {order.cod ? 'COD' : 'prepaid'}</p>
+      </div>
+      <span className="buyer-id mono">{order.id}</span>
+    </div>
+  )
+}
+
+function ReplyResult({ reply }: { reply: Reply | RecordedReply }) {
+  const reduce = useReducedMotion()
+  return (
+    <motion.div
+      className="reply-result"
+      role="status"
+      initial={reduce ? false : { opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+    >
+      {reply.intent === 'confirm' ? <Check size={16} /> : <Mic size={15} />}
+      <div><span>Buyer transcript{'source' in reply && ` · ${reply.source === 'claude' ? 'Claude' : reply.source}`}</span><strong>{reply.transcript ? `“${reply.transcript}”` : 'No transcript'}</strong></div>
+      <span className="intent mono">{reply.intent}</span>
+    </motion.div>
+  )
+}
+
+function BuyerFooter({ order }: { order: Order }) {
+  return (
+    <div className="buyer-footer">
+      <StatusChip status={order.status} />
+      <span><ArrowRight size={12} /> {courierNames[order.courier] ?? order.courier}</span>
+    </div>
+  )
+}
+
+type ReplayPhone = {
+  kind: 'replay'
+  prompt?: ReplayClip
+  update?: ReplayClip
+  reply?: RecordedReply
+  pause: () => void
+  demoPlaying: boolean
+}
+
+type LivePhone = {
+  kind: 'live'
+  reply?: Reply
   onReply: (id: string, reply: Reply) => void
+}
+
+export function BuyerPhone({ order, experience }: {
+  order: Order | undefined
+  experience: LivePhone | ReplayPhone
 }) {
+  const replay = experience.kind === 'replay'
+  const label = replay ? 'Recorded buyer' : mockMode ? 'Simulated buyer' : 'Buyer preview'
+  const update = replay && (experience.update ?? (order?.spoken_update ? {
+    text: order.spoken_update.text,
+    queued: true,
+  } : undefined))
+  const updateCard = replay && update && (
+    <VoiceCard title="A new courier" message={update} update recorded demoPlaying={experience.demoPlaying} onPlay={experience.pause} />
+  )
+
   return (
     <aside className="buyer-stage" aria-labelledby="buyer-heading">
       <header className="stage-heading">
@@ -246,19 +302,28 @@ export function BuyerPhone({ order, reply, onReply }: {
           <p><Smartphone size={15} /> Buyer view</p>
           <h2 id="buyer-heading">Across<span>the line.</span></h2>
         </div>
-        <span className="stage-signal" title={mockMode ? 'Simulated buyer' : 'Buyer preview'} aria-hidden="true"><Radio size={15} /></span>
+        <span className="stage-signal" title={label} aria-hidden="true"><Radio size={15} /></span>
       </header>
       <div className="device">
         <div className="device-screen">
           <div className="device-top" aria-hidden="true"><span /></div>
           <div className="device-brand"><div className="brand-mark small"><Package size={15} /></div><strong>Pakka</strong><span>Jaipur Kurta Co.</span></div>
-          {order
-            ? <OrderExperience key={order.id} order={order} reply={reply} onReply={onReply} />
-            : <div className="phone-empty"><PhoneIncoming size={28} /><p>No order selected.</p><span>Choose an order to see the buyer’s call.</span></div>}
+          {order && experience.kind === 'live' && <OrderExperience key={order.id} order={order} reply={experience.reply} onReply={experience.onReply} />}
+          {order && experience.kind === 'replay' && (
+            <div className="phone-scroll" key={order.id}>
+              <BuyerIdentity order={order} />
+              {experience.update && updateCard}
+              {experience.prompt && <VoiceCard title="Pakka voice call" message={experience.prompt} recorded demoPlaying={experience.demoPlaying} onPlay={experience.pause} />}
+              {experience.reply && <ReplyResult reply={experience.reply} />}
+              {!experience.update && updateCard}
+              <BuyerFooter order={order} />
+            </div>
+          )}
+          {!order && <div className="phone-empty"><PhoneIncoming size={28} /><p>No order selected.</p><span>{replay ? 'The recorded order will appear here.' : 'Choose an order to see the buyer’s call.'}</span></div>}
           <div className="device-bottom" aria-hidden="true"><span /></div>
         </div>
       </div>
-      <div className="stage-footer"><span className="state-dot" /><BlurSwap text={mockMode ? 'Simulated buyer' : 'Buyer preview'} /></div>
+      <div className="stage-footer"><span className="state-dot" /><BlurSwap text={label} /></div>
     </aside>
   )
 }

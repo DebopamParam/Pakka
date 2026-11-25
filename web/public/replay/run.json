@@ -1,0 +1,3413 @@
+{
+  "recorded_at": "2026-11-25T09:21:29.252Z",
+  "note": "Recorded from a real run of the live stack by scripts/record-replay.mjs.",
+  "order_id": "PK-1005",
+  "audio": {
+    "confirm": "confirm.wav",
+    "update": "update.wav"
+  },
+  "voice_text": {
+    "confirm": "Namaste Aditi ji, Pakka se bol rahe hain. Aapka ₹1,499 ka Diwali order Cash on Delivery hai — kya aap confirm karte hain? Haan ya na boliye.",
+    "update": "Namaste Aditi ji, Pakka se ek zaroori update. Bengaluru hub mein abhi deri chal rahi hai, isliye aapka ₹1,499 ka order ab DakExpress se bheja ja raha hai. Aapko kuch karne ki zaroorat nahi hai. Dhanyavaad!"
+  },
+  "voice_simulated": {
+    "confirm": false,
+    "update": false
+  },
+  "steps": [
+    {
+      "id": "start",
+      "label": "Dashboard at rest",
+      "at": "2026-11-25T09:21:29.252Z"
+    },
+    {
+      "id": "order",
+      "label": "New COD order PK-1005: Flagsmith decides",
+      "at": "2026-11-25T09:21:31.296Z"
+    },
+    {
+      "id": "call",
+      "label": "Sarvam calls the buyer in Hinglish",
+      "at": "2026-11-25T09:21:35.809Z"
+    },
+    {
+      "id": "reply",
+      "label": "Buyer replies; claude reads \"confirm\"",
+      "at": "2026-11-25T09:21:40.772Z"
+    },
+    {
+      "id": "jam",
+      "label": "SwiftShip's Bengaluru hub jams",
+      "at": "2026-11-25T09:21:43.783Z"
+    },
+    {
+      "id": "crash",
+      "label": "Kubernetes: SwiftShip in CrashLoopBackOff",
+      "at": "2026-11-25T09:21:59.348Z"
+    },
+    {
+      "id": "reroute",
+      "label": "NudgeBee approved: runbook flipped Flagsmith routing",
+      "at": "2026-11-25T09:23:31.598Z"
+    },
+    {
+      "id": "update",
+      "label": "Buyer hears the reroute update",
+      "at": "2026-11-25T09:23:38.449Z"
+    },
+    {
+      "id": "end",
+      "label": "Done",
+      "at": "2026-11-25T09:23:40.566Z"
+    }
+  ],
+  "events": [
+    {
+      "id": "910db45d-d91d-4233-99a6-297a45188d1b",
+      "at": "2026-11-25T09:21:19.248Z",
+      "type": "ops",
+      "title": "Control tower started",
+      "detail": "couriers are simulated",
+      "actor": "pakka"
+    },
+    {
+      "id": "718825a4-8ad7-4fcf-bad7-f3d1393d57e2",
+      "at": "2026-11-25T09:21:20.330Z",
+      "type": "order",
+      "title": "Order PK-1001: Ravi Kumar, Dharwad 580001",
+      "detail": "₹1,799 COD via swiftship",
+      "actor": "pakka"
+    },
+    {
+      "id": "0b0a9eb0-1b9d-487b-8e35-7ec5e42dff31",
+      "at": "2026-11-25T09:21:20.330Z",
+      "type": "flag",
+      "title": "Flagsmith evaluated Ravi Kumar",
+      "detail": "segment repeat_buyer: cod_policy.voice_confirm_above is null, no voice confirmation; courier_routing maps 58xxxx → swiftship",
+      "actor": "flagsmith"
+    },
+    {
+      "id": "be403d28-14c0-4682-b101-db62edb66508",
+      "at": "2026-11-25T09:21:20.341Z",
+      "type": "order",
+      "title": "Order PK-1002: Ananya Rao, Bengaluru 560034",
+      "detail": "₹2,499 COD via swiftship",
+      "actor": "pakka"
+    },
+    {
+      "id": "1ae48721-2417-4c93-bc40-d24114a9eb46",
+      "at": "2026-11-25T09:21:20.342Z",
+      "type": "flag",
+      "title": "Flagsmith evaluated Ananya Rao",
+      "detail": "segment repeat_buyer: cod_policy.voice_confirm_above is null, no voice confirmation; courier_routing maps 56xxxx → swiftship",
+      "actor": "flagsmith"
+    },
+    {
+      "id": "b571805d-cf47-4de8-9ae6-774766c5b6b9",
+      "at": "2026-11-25T09:21:20.351Z",
+      "type": "order",
+      "title": "Order PK-1003: Meera Shah, Jaipur 302001",
+      "detail": "₹899 prepaid via dakexpress",
+      "actor": "pakka"
+    },
+    {
+      "id": "5f45c303-8816-46d6-8cdd-44ad2559e526",
+      "at": "2026-11-25T09:21:20.351Z",
+      "type": "flag",
+      "title": "Flagsmith evaluated Meera Shah",
+      "detail": "prepaid, no voice confirmation; courier_routing maps 30xxxx → dakexpress",
+      "actor": "flagsmith"
+    },
+    {
+      "id": "4f44442c-7bc3-4cc0-a28d-5216964c3c75",
+      "at": "2026-11-25T09:21:20.364Z",
+      "type": "order",
+      "title": "Order PK-1004: Arjun Patil, Belagavi 590001",
+      "detail": "₹899 COD via dakexpress",
+      "actor": "pakka"
+    },
+    {
+      "id": "bd20dc18-e205-4947-94fa-c293dd71f7f6",
+      "at": "2026-11-25T09:21:20.364Z",
+      "type": "flag",
+      "title": "Flagsmith evaluated Arjun Patil",
+      "detail": "no segment (default cod_policy): COD ₹899 ≤ voice_confirm_above ₹999, no voice confirmation; prefix 59 not in courier_routing, fallback dakexpress",
+      "actor": "flagsmith"
+    },
+    {
+      "id": "15643646-6dc0-4c9f-9590-69f9ab7e88f3",
+      "at": "2026-11-25T09:21:31.296Z",
+      "type": "order",
+      "title": "Order PK-1005: Aditi Kulkarni, Hubballi 580020",
+      "detail": "₹1,499 COD via swiftship",
+      "actor": "pakka"
+    },
+    {
+      "id": "f2d3a936-bf76-4aac-8658-64861464cec7",
+      "at": "2026-11-25T09:21:31.296Z",
+      "type": "flag",
+      "title": "Flagsmith evaluated Aditi Kulkarni",
+      "detail": "segment risky_first_cod: COD ₹1,499 > voice_confirm_above ₹0, voice confirmation needed; courier_routing maps 58xxxx → swiftship",
+      "actor": "flagsmith"
+    },
+    {
+      "id": "2ea8d664-2fda-45da-8e75-355e06131169",
+      "at": "2026-11-25T09:21:35.797Z",
+      "type": "voice",
+      "title": "Calling Aditi Kulkarni in Hinglish",
+      "detail": "Namaste Aditi ji, Pakka se bol rahe hain. Aapka ₹1,499 ka Diwali order Cash on Delivery hai — kya aap confirm karte hain? Haan ya na boliye.",
+      "actor": "sarvam"
+    },
+    {
+      "id": "7e0eca12-c33f-4924-a267-0a19e84dfb21",
+      "at": "2026-11-25T09:21:40.771Z",
+      "type": "voice",
+      "title": "Aditi Kulkarni replied (typed): \"Haan, koi problem nahi, bhej do\"",
+      "detail": "intent confirm via claude; order PK-1005 is confirmed",
+      "actor": "buyer"
+    },
+    {
+      "id": "b94a89d5-64ac-44a7-8ff9-bbf4899415e0",
+      "at": "2026-11-25T09:21:43.783Z",
+      "type": "ops",
+      "title": "Fault injected: SwiftShip Bengaluru hub jammed",
+      "detail": "simulated courier",
+      "actor": "pakka"
+    },
+    {
+      "id": "c74bc8c1-6ebc-4563-9258-ec8d37c42bba",
+      "at": "2026-11-25T09:21:46.851Z",
+      "type": "courier",
+      "title": "SwiftShip Bengaluru hub jammed",
+      "detail": "p95 2475 ms, error rate 0% over last 10 probes (simulated courier)",
+      "actor": "courier"
+    },
+    {
+      "id": "a14bc1b0-d16b-434c-83db-66749f499cfa",
+      "at": "2026-11-25T09:21:46.851Z",
+      "type": "incident",
+      "title": "Incident opened: SwiftShip Bengaluru hub degraded",
+      "detail": "p95 2475 ms, error rate 0% over last 10 probes (simulated courier)",
+      "actor": "pakka"
+    },
+    {
+      "id": "1cd655c3-032b-4bc4-aca6-5150ef78b572",
+      "at": "2026-11-25T09:23:30.569Z",
+      "type": "ops",
+      "title": "Reroute requested: swiftship → dakexpress",
+      "detail": "NudgeBee: SwiftShip Bengaluru hub in CrashLoopBackOff, reroute approved by on-call",
+      "actor": "nudgebee"
+    },
+    {
+      "id": "9a975812-05d6-4dfa-b2a1-7764c1f295ad",
+      "at": "2026-11-25T09:23:30.847Z",
+      "type": "flag",
+      "title": "courier_routing updated",
+      "detail": "prefixes 56, 58 now → dakexpress",
+      "actor": "flagsmith"
+    },
+    {
+      "id": "43382805-0a2a-42c3-8ab7-a8d05887b14f",
+      "at": "2026-11-25T09:23:30.847Z",
+      "type": "voice",
+      "title": "Spoken update queued for Ravi Kumar",
+      "detail": "Namaste Ravi ji, Pakka se ek zaroori update. Bengaluru hub mein abhi deri chal rahi hai, isliye aapka ₹1,799 ka order ab DakExpress se bheja ja raha hai. Aapko kuch karne ki zaroorat nahi hai. Dhanyavaad!",
+      "actor": "pakka"
+    },
+    {
+      "id": "2a77d385-b36a-44b1-a0d6-4dea85b6c909",
+      "at": "2026-11-25T09:23:30.847Z",
+      "type": "voice",
+      "title": "Spoken update queued for Ananya Rao",
+      "detail": "Namaste Ananya ji, Pakka se ek zaroori update. Bengaluru hub mein abhi deri chal rahi hai, isliye aapka ₹2,499 ka order ab DakExpress se bheja ja raha hai. Aapko kuch karne ki zaroorat nahi hai. Dhanyavaad!",
+      "actor": "pakka"
+    },
+    {
+      "id": "68ec2769-8883-4631-b5d6-d55ca99cc4c2",
+      "at": "2026-11-25T09:23:30.847Z",
+      "type": "voice",
+      "title": "Spoken update queued for Aditi Kulkarni",
+      "detail": "Namaste Aditi ji, Pakka se ek zaroori update. Bengaluru hub mein abhi deri chal rahi hai, isliye aapka ₹1,499 ka order ab DakExpress se bheja ja raha hai. Aapko kuch karne ki zaroorat nahi hai. Dhanyavaad!",
+      "actor": "pakka"
+    },
+    {
+      "id": "3d30caf0-79a0-4794-b475-ae7e254b5fac",
+      "at": "2026-11-25T09:23:30.847Z",
+      "type": "incident",
+      "title": "Incident INC-1 mitigated",
+      "detail": "traffic rerouted swiftship → dakexpress",
+      "actor": "nudgebee"
+    },
+    {
+      "id": "338b39b2-a804-4a8c-8a5a-3be752206206",
+      "at": "2026-11-25T09:23:30.847Z",
+      "type": "ops",
+      "title": "Rerouted swiftship → dakexpress",
+      "detail": "3 in-flight order(s) moved",
+      "actor": "pakka"
+    },
+    {
+      "id": "22c7ead6-f5f9-45d3-9042-d1a7e448f612",
+      "at": "2026-11-25T09:23:32.456Z",
+      "type": "flag",
+      "title": "Flagsmith: courier_routing changed",
+      "detail": "{\"by_prefix\":{\"30\":\"dakexpress\",\"56\":\"swiftship\",\"58\":\"swiftship\"},\"fallback\":\"dakexpress\"} → {\"by_prefix\":{\"30\":\"dakexpress\",\"56\":\"dakexpress\",\"58\":\"dakexpress\"},\"fallback\":\"dakexpress\"}",
+      "actor": "flagsmith"
+    },
+    {
+      "id": "1ff4fd75-8a28-46fb-94d6-f9b42d7f6d0c",
+      "at": "2026-11-25T09:23:38.439Z",
+      "type": "voice",
+      "title": "Calling Aditi Kulkarni in Hinglish",
+      "detail": "Namaste Aditi ji, Pakka se ek zaroori update. Bengaluru hub mein abhi deri chal rahi hai, isliye aapka ₹1,499 ka order ab DakExpress se bheja ja raha hai. Aapko kuch karne ki zaroorat nahi hai. Dhanyavaad!",
+      "actor": "sarvam"
+    }
+  ],
+  "states": [
+    {
+      "at": "2026-11-25T09:21:29.251Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "ok",
+            "p95_ms": 7,
+            "error_rate": 0,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 6,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:21:32.245Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "awaiting_confirm",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "ok",
+            "p95_ms": 7,
+            "error_rate": 0,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 6,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:21:41.247Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "ok",
+            "p95_ms": 7,
+            "error_rate": 0,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 6,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:21:45.245Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "ok",
+            "p95_ms": 7,
+            "error_rate": 0,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 4,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:21:47.246Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2475,
+            "error_rate": 0,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 4,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:21:49.248Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2475,
+            "error_rate": 0.1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 4,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:21:53.251Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2475,
+            "error_rate": 0.2,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 4,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:21:55.253Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2475,
+            "error_rate": 0.3,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 4,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:21:57.274Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2475,
+            "error_rate": 0.4,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 4,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:21:59.277Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2475,
+            "error_rate": 0.5,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 4,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:01.279Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2475,
+            "error_rate": 0.6,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:03.280Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2475,
+            "error_rate": 0.7,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:05.282Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2475,
+            "error_rate": 0.8,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:09.284Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2475,
+            "error_rate": 0.9,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:11.286Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2339,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:15.290Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2237,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:20.405Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2237,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith (last known)"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:24.416Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2237,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:28.426Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 4,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:36.452Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 5,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:41.313Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2221,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:22:56.506Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2221,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 2,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:23:00.517Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 5,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 2,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:23:18.567Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 5,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 3,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:23:22.578Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 5,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 4,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:23:29.359Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "swiftship",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "confirmed",
+            "courier": "swiftship",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": null
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2323,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 4,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "swiftship",
+            "58": "swiftship"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "open",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": null,
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    },
+    {
+      "at": "2026-11-25T09:23:31.360Z",
+      "state": {
+        "orders": [
+          {
+            "id": "PK-1001",
+            "buyer_name": "Ravi Kumar",
+            "city": "Dharwad",
+            "pincode": "580001",
+            "value": 1799,
+            "cod": true,
+            "status": "rerouted",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.319Z",
+            "spoken_update": {
+              "text": "Namaste Ravi ji, Pakka se ek zaroori update. Bengaluru hub mein abhi deri chal rahi hai, isliye aapka ₹1,799 ka order ab DakExpress se bheja ja raha hai. Aapko kuch karne ki zaroorat nahi hai. Dhanyavaad!",
+              "played": false
+            }
+          },
+          {
+            "id": "PK-1002",
+            "buyer_name": "Ananya Rao",
+            "city": "Bengaluru",
+            "pincode": "560034",
+            "value": 2499,
+            "cod": true,
+            "status": "rerouted",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "rs50_off",
+            "created_at": "2026-11-25T09:21:20.341Z",
+            "spoken_update": {
+              "text": "Namaste Ananya ji, Pakka se ek zaroori update. Bengaluru hub mein abhi deri chal rahi hai, isliye aapka ₹2,499 ka order ab DakExpress se bheja ja raha hai. Aapko kuch karne ki zaroorat nahi hai. Dhanyavaad!",
+              "played": false
+            }
+          },
+          {
+            "id": "PK-1003",
+            "buyer_name": "Meera Shah",
+            "city": "Jaipur",
+            "pincode": "302001",
+            "value": 899,
+            "cod": false,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": null,
+            "created_at": "2026-11-25T09:21:20.351Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1004",
+            "buyer_name": "Arjun Patil",
+            "city": "Belagavi",
+            "pincode": "590001",
+            "value": 899,
+            "cod": true,
+            "status": "in_transit",
+            "courier": "dakexpress",
+            "needs_voice_confirm": false,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:20.364Z",
+            "spoken_update": null
+          },
+          {
+            "id": "PK-1005",
+            "buyer_name": "Aditi Kulkarni",
+            "city": "Hubballi",
+            "pincode": "580020",
+            "value": 1499,
+            "cod": true,
+            "status": "rerouted",
+            "courier": "dakexpress",
+            "needs_voice_confirm": true,
+            "prepaid_nudge": "gift_wrap",
+            "created_at": "2026-11-25T09:21:31.295Z",
+            "spoken_update": {
+              "text": "Namaste Aditi ji, Pakka se ek zaroori update. Bengaluru hub mein abhi deri chal rahi hai, isliye aapka ₹1,499 ka order ab DakExpress se bheja ja raha hai. Aapko kuch karne ki zaroorat nahi hai. Dhanyavaad!",
+              "played": false
+            }
+          }
+        ],
+        "couriers": [
+          {
+            "id": "swiftship",
+            "name": "SwiftShip",
+            "hub": "Bengaluru",
+            "status": "jammed",
+            "p95_ms": 2323,
+            "error_rate": 1,
+            "simulated": true
+          },
+          {
+            "id": "dakexpress",
+            "name": "DakExpress",
+            "hub": "Pune",
+            "status": "ok",
+            "p95_ms": 4,
+            "error_rate": 0,
+            "simulated": true
+          }
+        ],
+        "routing": {
+          "by_prefix": {
+            "30": "dakexpress",
+            "56": "dakexpress",
+            "58": "dakexpress"
+          },
+          "fallback": "dakexpress",
+          "source": "flagsmith"
+        },
+        "incidents": [
+          {
+            "id": "INC-1",
+            "courier": "swiftship",
+            "title": "SwiftShip Bengaluru hub degraded",
+            "status": "mitigated",
+            "opened_at": "2026-11-25T09:21:46.851Z",
+            "mitigated_at": "2026-11-25T09:23:30.847Z",
+            "resolved_at": null
+          }
+        ],
+        "simulated": true
+      }
+    }
+  ],
+  "proofs": {
+    "pods_crash": "NAME                             READY   STATUS             RESTARTS     AGE\ncontrol-tower-67444996bf-xw288   1/1     Running            0            41s\ndakexpress-64c9fd6744-4d9gd      1/1     Running            0            22m\nswiftship-56877bf968-cl2ng       0/1     CrashLoopBackOff   1 (7s ago)   41s\n",
+    "pods_after": "NAME                             READY   STATUS             RESTARTS      AGE\ncontrol-tower-67444996bf-xw288   1/1     Running            0             2m22s\ndakexpress-64c9fd6744-4d9gd      1/1     Running            0             24m\nswiftship-56877bf968-cl2ng       0/1     CrashLoopBackOff   4 (12s ago)   2m22s\n"
+  }
+}

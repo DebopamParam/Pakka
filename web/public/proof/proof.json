@@ -1,0 +1,37 @@
+[
+  {
+    "sponsor": "Flagsmith",
+    "title": "The live rules: four flags",
+    "src": "/proof/flagsmith-features.png"
+  },
+  {
+    "sponsor": "Flagsmith",
+    "title": "courier_routing before the fix",
+    "src": "/proof/flagsmith-routing.png"
+  },
+  {
+    "sponsor": "Flagsmith",
+    "title": "COD rule per buyer segment",
+    "src": "/proof/flagsmith-segments.png"
+  },
+  {
+    "sponsor": "NudgeBee",
+    "title": "Crash loop detected in our cluster",
+    "src": "/proof/nudgebee-detected.png"
+  },
+  {
+    "sponsor": "NudgeBee",
+    "title": "Automation: trigger → approval → script",
+    "src": "/proof/nudgebee-automation.png"
+  },
+  {
+    "sponsor": "NudgeBee",
+    "title": "Auto-started by the crash; waiting for approval",
+    "src": "/proof/nudgebee-approval.png"
+  },
+  {
+    "sponsor": "NudgeBee",
+    "title": "Event-triggered run completed",
+    "src": "/proof/nudgebee-completed.png"
+  }
+]
