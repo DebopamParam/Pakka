@@ -1,0 +1,153 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swiftship
+  namespace: pakka
+  labels:
+    app.kubernetes.io/name: swiftship
+    app.kubernetes.io/component: courier
+    app.kubernetes.io/part-of: pakka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: swiftship
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: swiftship
+        app.kubernetes.io/component: courier
+        app.kubernetes.io/part-of: pakka
+    spec:
+      containers:
+        - name: courier
+          image: pakka/courier-mock:dev
+          imagePullPolicy: Never
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: COURIER_ID
+              value: swiftship
+            - name: COURIER_NAME
+              value: SwiftShip
+            - name: HUB
+              value: "Bengaluru hub"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            failureThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: swiftship
+  namespace: pakka
+  labels:
+    app.kubernetes.io/name: swiftship
+    app.kubernetes.io/component: courier
+    app.kubernetes.io/part-of: pakka
+spec:
+  type: ClusterIP
+  # Keep a jammed (unready) courier reachable so it can still be called and unjammed.
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/name: swiftship
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dakexpress
+  namespace: pakka
+  labels:
+    app.kubernetes.io/name: dakexpress
+    app.kubernetes.io/component: courier
+    app.kubernetes.io/part-of: pakka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dakexpress
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dakexpress
+        app.kubernetes.io/component: courier
+        app.kubernetes.io/part-of: pakka
+    spec:
+      containers:
+        - name: courier
+          image: pakka/courier-mock:dev
+          imagePullPolicy: Never
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: COURIER_ID
+              value: dakexpress
+            - name: COURIER_NAME
+              value: DakExpress
+            - name: HUB
+              value: "Pune hub"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            failureThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dakexpress
+  namespace: pakka
+  labels:
+    app.kubernetes.io/name: dakexpress
+    app.kubernetes.io/component: courier
+    app.kubernetes.io/part-of: pakka
+spec:
+  type: ClusterIP
+  # Keep a jammed (unready) courier reachable so it can still be called and unjammed.
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/name: dakexpress
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
