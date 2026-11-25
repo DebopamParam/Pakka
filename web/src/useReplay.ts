@@ -12,6 +12,7 @@ const BLOCKED = 'Your browser blocked the sound. Press Play to start the demo wi
 export function useReplay(run: ReplayRun) {
   const [position, setPosition] = useState<Position>({ index: 0, elapsed: 0, audioOffset: 0 })
   const [playing, setPlaying] = useState(false)
+  const [rate, setRate] = useState(1)
   const [audioError, setAudioError] = useState('')
   const audio = useRef<AudioContext | null>(null)
   const buffers = useRef(new Map<string, Promise<AudioBuffer>>())
@@ -64,7 +65,7 @@ export function useReplay(run: ReplayRun) {
 
   const startOf = (index: number) => run.frames.slice(0, index).reduce((sum, _, i) => sum + stepLength(i), 0)
   const total = () => startOf(run.frames.length)
-  const now = () => startOf(position.index) + position.elapsed + (playing ? performance.now() - stepStartedAt.current : 0)
+  const now = () => startOf(position.index) + position.elapsed + (playing ? (performance.now() - stepStartedAt.current) * rate : 0)
 
   // The demo only runs with sound: start it once the browser lets the audio context run.
   function play(restart = false) {
@@ -139,7 +140,7 @@ export function useReplay(run: ReplayRun) {
     const timer = window.setTimeout(() => {
       timeDone = true
       advance()
-    }, Math.max(0, stepDurations[frame.id] - position.elapsed))
+    }, Math.max(0, stepDurations[frame.id] - position.elapsed) / rate)
 
     // Never carry on silently: stop and ask for Play again.
     function audioFailed(message: string) {
@@ -164,6 +165,7 @@ export function useReplay(run: ReplayRun) {
         }
         source = context.createBufferSource()
         source.buffer = buffer
+        source.playbackRate.value = rate
         source.connect(context.destination)
         source.onended = () => {
           audioDone = true
@@ -181,15 +183,15 @@ export function useReplay(run: ReplayRun) {
       active = false
       window.clearTimeout(timer)
       window.clearTimeout(audioTimer)
-      position.elapsed += performance.now() - startedAt
+      position.elapsed += (performance.now() - startedAt) * rate
       if (context && source) {
-        if (!audioDone) position.audioOffset += context.currentTime - audioStartedAt
+        if (!audioDone) position.audioOffset += (context.currentTime - audioStartedAt) * rate
         source.onended = null
         source.stop()
         source.disconnect()
       }
     }
-  }, [playing, finished, frame, position, run.frames.length])
+  }, [playing, finished, frame, position, rate, run.frames.length])
 
-  return { frame, index: position.index, position, playing, finished, audioError, play, pause, jump, seek, seekTo, now, total }
+  return { frame, index: position.index, position, playing, rate, setRate, finished, audioError, play, pause, jump, seek, seekTo, now, total }
 }

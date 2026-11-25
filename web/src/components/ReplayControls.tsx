@@ -23,7 +23,7 @@ const dateInIndia = new Intl.DateTimeFormat('en-IN', {
 })
 
 export function ReplayControls({ run, playback }: { run: ReplayRun; playback: ReturnType<typeof useReplay> }) {
-  const { frame, index, playing, finished, audioError, play, pause, jump, seek, seekTo, now, total } = playback
+  const { frame, index, playing, finished, audioError, play, pause, jump, seek, seekTo, now, total, rate, setRate } = playback
   const [, setTick] = useState(0)
   useEffect(() => {
     if (!playing) return
@@ -47,6 +47,9 @@ export function ReplayControls({ run, playback }: { run: ReplayRun; playback: Re
         <button type="button" className="replay-restart replay-skip" aria-label="Forward 5 seconds" title="Forward 5 seconds" onClick={() => seek(5000)}>
           +5s
         </button>
+        <select className="replay-restart replay-rate" aria-label="Playback speed" value={rate} onChange={(event) => setRate(Number(event.target.value))}>
+          {[1, 1.25, 1.5, 1.75, 2].map((speed) => <option key={speed} value={speed}>{speed}×</option>)}
+        </select>
         <button type="button" className="replay-restart replay-again" aria-label="Restart demo from the beginning" title="Restart from the beginning" onClick={() => play(true)}>
           Restart
         </button>

@@ -273,11 +273,11 @@ export function DemoGuide({ run, playback, onProof }: {
     let last = performance.now()
     const timer = window.setInterval(() => {
       const now = performance.now()
-      setClock((previous) => ({ position, elapsed: (previous.position === position ? previous.elapsed : position.elapsed) + now - last }))
+      setClock((previous) => ({ position, elapsed: (previous.position === position ? previous.elapsed : position.elapsed) + (now - last) * playback.rate }))
       last = now
     }, 200)
     return () => window.clearInterval(timer)
-  }, [playing, position])
+  }, [playing, position, playback.rate])
 
   const beats = script(run)[frame.id]
   const beatIndex = Math.max(0, beats.filter((item) => item.at <= elapsed).length - 1)
