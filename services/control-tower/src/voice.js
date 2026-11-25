@@ -7,8 +7,12 @@ function errorLabel(err) {
   return err?.statusCode ? `HTTP ${err.statusCode}` : err?.message || String(err);
 }
 
+// Sarvam bills per character, and demo takes replay the same lines, so each text is synthesised once.
+const spoken = new Map();
+
 export async function speak(text) {
   if (!sarvam) return { audio: null, simulated: true, error: "SARVAM_API_KEY not set" };
+  if (spoken.has(text)) return { audio: spoken.get(text), simulated: false };
   try {
     const res = await sarvam.textToSpeech.convert({
       text,
@@ -16,7 +20,9 @@ export async function speak(text) {
       model: "bulbul:v4-flash",
       speaker: "shubh_hi_customer",
     });
-    return { audio: res.audios?.[0] ?? null, simulated: false };
+    const audio = res.audios?.[0] ?? null;
+    if (audio) spoken.set(text, audio);
+    return { audio, simulated: false };
   } catch (err) {
     return { audio: null, simulated: true, error: `Sarvam TTS failed: ${errorLabel(err)}` };
   }
