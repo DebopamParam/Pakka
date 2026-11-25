@@ -27,9 +27,19 @@ const FEATURES = [
     variants: [{ value: "gift_wrap", percent: 50 }],
     description: "A/B test: which nudge moves COD buyers to prepaid.",
   },
+  {
+    name: "peak_priority",
+    value: { min_value: 2000, peak_in_flight: 40 },
+    description: "At peak (in-flight orders at or above peak_in_flight), carts worth min_value or more skip a jammed courier hub.",
+  },
 ];
 
 const SEGMENTS = [
+  {
+    name: "rto_offender",
+    conditions: [{ property: "past_rto", operator: "GREATER_THAN_INCLUSIVE", value: "2" }],
+    overrides: { cod_policy: { cod_allowed: false, voice_confirm_above: null, max_cod_value: 0 } },
+  },
   {
     name: "repeat_buyer",
     conditions: [{ property: "order_count", operator: "GREATER_THAN_INCLUSIVE", value: "2" }],
@@ -133,6 +143,15 @@ for (const spec of SEGMENTS) {
     if (override) await api("PATCH", `/features/featurestates/${override.id}/`, body);
     else await api("POST", "/features/featurestates/", body);
   }
+}
+
+// When segments overlap, the first in SEGMENTS wins (so bad history beats a repeat buyer).
+const order = (await api("GET", `/projects/${PROJECT}/segments/?page_size=100`)).results;
+const rank = (id) => SEGMENTS.findIndex((spec) => spec.name === order.find((s) => s.id === id)?.name);
+for (const feature of new Set(SEGMENTS.flatMap((spec) => Object.keys(spec.overrides)))) {
+  const list = (await api("GET", `/features/feature-segments/?environment=${env.id}&feature=${featureIds[feature]}`)).results;
+  const sorted = list.filter((fs) => rank(fs.segment) >= 0).sort((a, b) => rank(a.segment) - rank(b.segment));
+  await api("POST", "/features/feature-segments/update-priorities/", sorted.map((fs, priority) => ({ id: fs.id, priority })));
 }
 
 // Flagsmith refuses webhooks to private addresses, so this needs a public URL (e.g. a tunnel); skipped without one.

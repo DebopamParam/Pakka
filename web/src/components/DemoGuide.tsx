@@ -37,7 +37,7 @@ function script(run: ReplayRun): Record<ReplayStepId, Beat[]> {
   const reply = run.reply
 
   return {
-    start: [{ at: 0, actor: 'Pakka', text: 'Festive rush at Jaipur Kurta Co. Pakka turns the traffic into profit.' }],
+    start: [{ at: 0, actor: 'Pakka', text: 'Festive rush at Jaipur Kurta Co. Pakka turns the traffic into profit, with less waste.' }],
     order: [
       { at: 0, actor: 'Pakka', text: `New order: ${buyer?.buyer_name ?? name}, ${buyer?.city ?? ''} — ${amount}, cash on delivery.`, target: `order-${run.orderId}`, label: 'New COD order' },
       {
@@ -127,9 +127,9 @@ function useTargetRect(target: string | undefined, scroll: boolean) {
 }
 
 const POINTS = [
-  { icon: PhoneCall, title: 'Confirm risky COD before it ships', text: 'Flagsmith segments the buyer, Sarvam AI calls in Hinglish, Claude reads the answer.' },
+  { icon: PhoneCall, title: 'Fewer wasted returns', text: 'Flagsmith segments each buyer: Sarvam AI confirms risky COD by voice, and repeat returners get no COD.' },
+  { icon: ShoppingCart, title: 'High-value carts first at peak', text: 'At peak, big carts skip a jammed courier hub at once.' },
   { icon: Route, title: 'Move orders off a failing courier hub', text: 'NudgeBee catches the crash, a person approves, Flagsmith reroutes. No deploy.' },
-  { icon: ShoppingCart, title: 'High-value carts first at peak', text: 'Next on the roadmap.', next: true },
 ]
 
 function Intro({ playing }: { playing: boolean }) {
@@ -137,14 +137,14 @@ function Intro({ playing }: { playing: boolean }) {
     <motion.section className="tour-intro" aria-label="What Pakka does"
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, scale: 0.98 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-      <p className="tour-intro-eyebrow">Pakka · festive COD control tower</p>
+      <p className="tour-intro-eyebrow">Pakka · smart festive logistics</p>
       <h2>More profit from festive traffic.</h2>
-      <p className="tour-intro-lede">1 in 4 cash-on-delivery parcels comes back, and jammed courier hubs stall the rest. Pakka manages the logistics for Indian D2C brands, automatically.</p>
+      <p className="tour-intro-lede">Festive rushes waste money: parcels that come back, hubs that jam, big carts stuck behind small ones. Pakka runs the logistics for Indian D2C brands, live, with no code deploys.</p>
       <ul>
-        {POINTS.map(({ icon: Icon, title, text, next }) => (
-          <li key={title} className={next ? 'tour-intro-next' : undefined}>
+        {POINTS.map(({ icon: Icon, title, text }) => (
+          <li key={title}>
             <span className="tour-intro-icon"><Icon size={18} /></span>
-            <div><strong>{title}{next && <em>Next</em>}</strong><p>{text}</p></div>
+            <div><strong>{title}</strong><p>{text}</p></div>
           </li>
         ))}
       </ul>

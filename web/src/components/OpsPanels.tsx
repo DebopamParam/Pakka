@@ -121,7 +121,7 @@ export function Orders({ orders, selectedId, onSelect, reasons, simulated }: {
                         <span className="mono">{order.pincode}</span>
                       </button>
                     </th>
-                    <td className="money">{rupees.format(order.value)}</td>
+                    <td className="money">{rupees.format(order.value)}{order.priority && <span className="priority-tag" title="peak_priority: high-value cart at peak">Priority</span>}</td>
                     <td><span className="payment-tag">{order.cod ? 'COD' : 'Prepaid'}</span></td>
                     <td><StatusChip status={order.status} /></td>
                     <td>{courierNames[order.courier] ?? order.courier}</td>

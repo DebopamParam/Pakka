@@ -670,3 +670,5 @@ tbody .selected-order th { box-shadow: inset 2px 0 var(--color-accent); }
   .tour-intro { padding: 22px 20px; }
   .tour-intro h2 { font-size: 28px; }
 }
+
+.priority-tag { margin-left: 6px; padding: 1px 6px; border-radius: 99px; font-size: 10px; font-weight: 600; letter-spacing: .02em; color: #6d28d9; background: #ede9fe; vertical-align: middle; }

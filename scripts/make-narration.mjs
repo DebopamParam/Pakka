@@ -6,7 +6,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { SarvamAIClient } from "../services/control-tower/node_modules/sarvamai/dist/esm/index.mjs";
 
 const LINES = {
-  start: "Festive sales bring record traffic, and record losses. One in four cash on delivery parcels comes back, and jammed courier hubs stall the rest. Pakka turns that traffic into profit. It confirms risky C O D orders before they ship, and moves orders off a failing courier hub, on its own.",
+  start: "Festive sales bring record orders, and a lot of waste. Parcels that come back, courier hubs that jam, and big carts stuck behind small ones. Pakka is smart logistics for D2C brands. It cuts wasted returns, puts high-value carts first at peak, and moves orders off a failing hub, on its own.",
   order: "A new order. Aditi Kulkarni in Hubballi, fourteen ninety nine rupees, cash on delivery. Flagsmith puts this buyer in the risky first C O D segment, so Pakka confirms by voice before shipping.",
   call: "Sarvam A I calls the buyer in Hinglish.",
   reply: "The buyer says yes, send it. Claude reads the intent as confirm, and the order ships.",

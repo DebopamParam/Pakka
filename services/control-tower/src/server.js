@@ -68,16 +68,24 @@ async function createOrder(input, { background = false } = {}) {
     order_count: Math.max(0, Math.round(Number(input.order_count) || 0)),
     order_value: value,
     rto_risk: input.rto_risk === "high" ? "high" : "low",
+    past_rto: Math.max(0, Math.round(Number(input.past_rto) || 0)),
     city: String(input.city || ""),
   };
   const identifier = `buyer-${String(input.phone_last4 || "0000")}-${firstName(input.buyer_name || "guest").toLowerCase()}`;
   const flags = await evaluateBuyer(identifier, traits);
-  const { cod_policy: policy, voice_confirm_enabled: voiceOn, prepaid_nudge } = flags.values;
+  const { cod_policy: policy, voice_confirm_enabled: voiceOn, prepaid_nudge, peak_priority: peakRule } = flags.values;
   // If Flagsmith is unreachable or the value is malformed, keep the last routing we read rather than startup defaults,
   // so a timeout after a reroute never sends orders back to the jammed hub.
   const r = flags.source !== "local-defaults" && isRouting(flags.values.courier_routing) ? flags.values.courier_routing : routing;
 
-  const route = courierFor(input.pincode, r);
+  let route = courierFor(input.pincode, r);
+  // At peak, a high-value cart never waits on a jammed hub for the runbook: it goes to the fallback courier at once.
+  const inFlight = orders.filter((o) => !["cancelled", "delivered"].includes(o.status)).length;
+  const peak = inFlight >= Number(peakRule?.peak_in_flight ?? Infinity);
+  const priority = peak && value >= Number(peakRule?.min_value ?? Infinity);
+  if (priority && couriers[route.courier]?.status === "jammed" && r.fallback !== route.courier) {
+    route = { courier: r.fallback, why: `peak_priority: high-value cart skips jammed ${route.courier} → ${r.fallback}` };
+  }
   const segment = segmentFor(traits);
   const codAllowed = Boolean(policy.cod_allowed) && value <= Number(policy.max_cod_value ?? Infinity);
   const above = policy.voice_confirm_above;
@@ -90,13 +98,15 @@ async function createOrder(input, { background = false } = {}) {
   else if (above == null) voiceWhy = `${segText}: cod_policy.voice_confirm_above is null, no voice confirmation`;
   else if (needsVoice) voiceWhy = `${segText}: COD ${inr(value)} > voice_confirm_above ${inr(above)}, voice confirmation needed`;
   else voiceWhy = `${segText}: COD ${inr(value)} ≤ voice_confirm_above ${inr(above)}, no voice confirmation`;
-  const codWhy = codAllowed ? "" : `; COD not allowed above max_cod_value ${inr(policy.max_cod_value)}`;
+  const codWhy = codAllowed ? "" : policy.cod_allowed ? `; COD not allowed above max_cod_value ${inr(policy.max_cod_value)}` : "; COD off for this buyer (cod_allowed false)";
   const sourceWhy = flags.source === "flagsmith" ? "" : ` [${flags.source}${flags.missing?.length ? `: missing ${flags.missing.join(", ")}` : ""}]`;
-  const reason = `${voiceWhy}; ${route.why}${codWhy}${sourceWhy}`;
+  const priorityWhy = priority ? `; peak_priority: ${inr(value)} cart dispatched first` : "";
+  const reason = `${voiceWhy}; ${route.why}${codWhy}${priorityWhy}${sourceWhy}`;
   if (cod && !codAllowed) {
     if (background) return null;
-    emit("flag", `COD declined for ${input.buyer_name || "Guest"}`, reason, "flagsmith");
-    throw Object.assign(new Error(`COD is not available above ${inr(policy.max_cod_value)} for this buyer. Offer prepaid instead.`), { status: 422 });
+    emit("flag", `COD declined for ${input.buyer_name || "Guest"}`, `${reason}; prepaid offered instead`, "flagsmith");
+    const why = policy.cod_allowed ? `above ${inr(policy.max_cod_value)}` : "after repeated returns";
+    throw Object.assign(new Error(`COD is not available ${why} for this buyer. Offer prepaid instead.`), { status: 422 });
   }
 
   const order = {
@@ -112,6 +122,7 @@ async function createOrder(input, { background = false } = {}) {
     prepaid_nudge: cod ? prepaid_nudge : null,
     created_at: new Date().toISOString(),
     background,
+    priority,
     traits,
   };
   orders.push(order);
@@ -362,7 +373,9 @@ const routes = [
       emit("flag", "courier_routing updated", `prefixes ${result.prefixes.join(", ")} now → ${to}`, "flagsmith");
     }
 
-    const affected = orders.filter((o) => o.courier === from && !["cancelled", "delivered"].includes(o.status));
+    // High-value carts move first.
+    const affected = orders.filter((o) => o.courier === from && !["cancelled", "delivered"].includes(o.status)).sort((a, b) => Number(b.priority) - Number(a.priority));
+    const firsts = affected.filter((o) => o.priority).length;
     for (const o of affected) {
       o.courier = to;
       // A buyer still mid-confirmation keeps that status so their reply still counts.
@@ -378,7 +391,7 @@ const routes = [
         emit("incident", `Incident ${inc.id} mitigated`, `traffic rerouted ${from} → ${to}`, "nudgebee");
       }
     }
-    emit("ops", result.changed ? `Rerouted ${from} → ${to}` : `Already rerouted ${from} → ${to}`, `${affected.length} in-flight order(s) moved`, "pakka");
+    emit("ops", result.changed ? `Rerouted ${from} → ${to}` : `Already rerouted ${from} → ${to}`, `${affected.length} in-flight order(s) moved${firsts ? `, ${firsts} high-value first` : ""}`, "pakka");
     send(res, 200, { ok: true, changed: result.changed, prefixes: result.prefixes, routing: result.routing, affected_orders: affected.map((o) => o.id) });
   }],
 
@@ -416,7 +429,7 @@ async function backgroundOrder() {
   const [city, pincode] = pick(PLACES);
   const created = await createOrder({
     buyer_name: pick(NAMES), phone_last4: String(1000 + Math.floor(Math.random() * 9000)), pincode, city,
-    value: pick(VALUES), cod: Math.random() < 0.65, order_count: Math.floor(Math.random() * 6), rto_risk: Math.random() < 0.25 ? "high" : "low",
+    value: pick(VALUES), cod: Math.random() < 0.65, order_count: Math.floor(Math.random() * 6), rto_risk: Math.random() < 0.25 ? "high" : "low", past_rto: Math.random() < 0.1 ? 2 + Math.floor(Math.random() * 3) : 0,
   }, { background: true }).catch(() => null);
   const o = created && orders.find((x) => x.id === created.order.id);
   // Simulated buyers answer their confirmation call within a few seconds; no real call is made for them.
@@ -457,6 +470,8 @@ const SEED = [
   { buyer_name: "Ananya Rao", phone_last4: "1093", pincode: "560034", city: "Bengaluru", value: 2499, cod: true, order_count: 6, rto_risk: "low" },
   { buyer_name: "Meera Shah", phone_last4: "7710", pincode: "302001", city: "Jaipur", value: 899, cod: false, order_count: 1, rto_risk: "low" },
   { buyer_name: "Arjun Patil", phone_last4: "3356", pincode: "590001", city: "Belagavi", value: 899, cod: true, order_count: 1, rto_risk: "low" },
+  { buyer_name: "Kavya Iyer", phone_last4: "6642", pincode: "560076", city: "Bengaluru", value: 4999, cod: false, order_count: 4, rto_risk: "low" },
+  { buyer_name: "Vikram Singh", phone_last4: "2087", pincode: "570017", city: "Mysuru", value: 1299, cod: true, order_count: 5, rto_risk: "low", past_rto: 3 },
 ];
 
 server.listen(PORT, async () => {
@@ -464,7 +479,7 @@ server.listen(PORT, async () => {
   emit("ops", "Control tower started", "couriers are simulated", "pakka");
   await refreshRouting();
   await startTraffic();
-  for (const o of SEED) await createOrder(o);
+  for (const o of SEED) await createOrder(o).catch(() => null); // Vikram's COD is declined by design.
   for (const c of Object.values(couriers)) setInterval(() => probe(c), PROBE_MS);
   setInterval(refreshRouting, 3000);
 });

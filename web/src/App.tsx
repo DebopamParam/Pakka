@@ -187,7 +187,7 @@ function Dashboard({
       <header className="page-header">
         <nav className="island" aria-label="Pakka">
           <div className="nav-brand"><span className="brand-mark"><PackageCheck size={19} strokeWidth={1.9} /></span><strong>Pakka</strong></div>
-          <p>Festive COD, delivered pakka.</p>
+          <p>Smart festive logistics, less waste.</p>
           <div className={`incident-pill mono ${(jammed || faultStarted) && !rerouted ? 'incident-active' : ''}`} role="status">
             <span className="state-dot" /><BlurSwap text={incident} />
           </div>

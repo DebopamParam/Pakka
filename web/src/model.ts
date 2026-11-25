@@ -32,6 +32,7 @@ const orderSchema = z.object({
   prepaid_nudge: z.string().nullable(),
   created_at: z.string(),
   background: z.boolean().optional(),
+  priority: z.boolean().optional(),
   reason: z.string().optional(),
   decision_reason: z.string().optional(),
   decision: decisionSchema.optional(),

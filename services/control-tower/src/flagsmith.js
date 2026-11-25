@@ -10,13 +10,16 @@ export const DEFAULTS = {
   cod_policy: { cod_allowed: true, voice_confirm_above: 999, max_cod_value: 5000 },
   voice_confirm_enabled: true,
   prepaid_nudge: "rs50_off",
+  peak_priority: { min_value: 2000, peak_in_flight: 40 },
 };
 const SEGMENT_POLICY = {
+  rto_offender: { cod_allowed: false, voice_confirm_above: null, max_cod_value: 0 },
   repeat_buyer: { cod_allowed: true, voice_confirm_above: null, max_cod_value: 10000 },
   risky_first_cod: { cod_allowed: true, voice_confirm_above: 0, max_cod_value: 3000 },
 };
 
 export function segmentFor(traits) {
+  if (traits.past_rto >= 2) return "rto_offender";
   if (traits.order_count >= 2) return "repeat_buyer";
   if (traits.order_count === 0 && traits.rto_risk === "high") return "risky_first_cod";
   return null;
