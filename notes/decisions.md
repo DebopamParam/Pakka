@@ -85,6 +85,10 @@ Each entry: what we chose, why, and what else we could have done.
 - **A/B test:** the prepaid nudge, "₹50 off prepaid" vs "free gift wrap".
 - **Kill switch:** `voice_confirm_enabled`.
 - **Flipped programmatically** by the approved NudgeBee runbook.
+- **Audit trail on screen:** Flagsmith refuses webhooks to private addresses, and its audit-log API fails with a master
+  API key (a server error in self-hosted Flagsmith). So the control tower watches the flag values every few seconds
+  and shows any change, whoever made it, including edits in the Flagsmith dashboard. With a public URL, the
+  environment webhook would replace the polling.
 - **Other routes:**
   - **Hard-coded rules or a database table:** a deploy is needed for each change, with no audit trail and no
     per-segment targeting.
