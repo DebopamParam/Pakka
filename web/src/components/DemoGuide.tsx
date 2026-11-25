@@ -189,13 +189,14 @@ function Intro() {
   )
 }
 
-function Outro() {
+function Outro({ ended, onExplore }: { ended: boolean; onExplore: () => void }) {
   return (
     <motion.section className="tour-intro tour-outro" aria-label="How the pieces connect"
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, scale: 0.98 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
       <p className="tour-intro-eyebrow">Architecture</p>
       <h2>How the pieces connect.</h2>
+      {ended && <button type="button" className="tour-explore" onClick={onExplore}>Explore the dashboard →</button>}
       <svg className="arch-svg" viewBox="0 0 880 400" role="img" aria-label="Buyer, Sarvam AI and Claude API around our MacBook, which runs self-hosted Flagsmith and a Kubernetes cluster in OrbStack; hosted NudgeBee watches the cluster and a person approves each fix">
         <defs>
           <marker id="arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" /></marker>
@@ -284,14 +285,17 @@ export function DemoGuide({ run, playback, onProof }: {
   const beat = beats[beatIndex]
   // Before the demo starts, the presenter points at the Play button instead of covering the page.
   const waiting = !playing && index === 0
-  const target = waiting ? 'play' : active ? beat.target : undefined
+  // Once the demo ends, judges can dismiss the overlays and click around the final state.
+  const [exploreAt, setExploreAt] = useState<typeof position>()
+  const exploring = !playing && exploreAt === position
+  const target = exploring ? undefined : waiting ? 'play' : active ? beat.target : undefined
   const rect = useTargetRect(target, playing)
-  const shown = (playing || index > 0) && beat
+  const shown = !exploring && (playing || index > 0) && beat
   const transition = reduce ? { duration: 0 } : spring
   const pad = 8
   const tip = rect && (waiting ? { x: rect.x + rect.width - 6, y: rect.y + rect.height - 4 } : { x: rect.x + Math.min(rect.width * 0.3, 90), y: rect.y + Math.min(rect.height / 2, 34) })
   const flip = tip ? tip.x < 190 : false
-  const proof = active ? beat.proof : undefined
+  const proof = active && !exploring ? beat.proof : undefined
   const proofWidth = proof?.sponsor === 'NudgeBee' ? 720 : 320
   const proofLeft = rect && (rect.x + rect.width + proofWidth + 16 < window.innerWidth ? rect.x + rect.width + 16 : Math.max(16, rect.x - proofWidth - 16))
   // The large NudgeBee screenshots sit just below the replay controls, clear of the caption.
@@ -327,7 +331,7 @@ export function DemoGuide({ run, playback, onProof }: {
       </AnimatePresence>
       <AnimatePresence>
         {index === 0 && playing && <Intro key="intro" />}
-        {frame.id === 'end' && beatIndex === 1 && <Outro key="outro" />}
+        {frame.id === 'end' && beatIndex === 1 && !exploring && <Outro key="outro" ended={finished && !playing} onExplore={() => setExploreAt(position)} />}
       </AnimatePresence>
       <AnimatePresence mode="wait">
         {shown && (

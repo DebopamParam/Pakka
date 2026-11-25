@@ -754,3 +754,5 @@ tbody .selected-order th { box-shadow: inset 2px 0 var(--color-accent); }
 .arch-business strong { display: block; margin-bottom: 2px; color: #fde68a; font-size: 13px; }
 @media (max-width: 720px) { .arch-business { grid-template-columns: 1fr; } }
 .replay-rate { width: auto; padding-inline: 8px; font-size: 12px; font-weight: 600; color: inherit; cursor: pointer; }
+.tour-explore { position: absolute; top: 28px; right: 32px; padding: 9px 16px; border: 0; border-radius: 99px; background: #c4b5fd; color: #1a1033; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+.tour-explore:hover { background: #ddd6fe; }
