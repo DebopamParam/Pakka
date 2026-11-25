@@ -162,9 +162,9 @@ function useTargetRect(target: string | undefined, scroll: boolean) {
 }
 
 const POINTS = [
-  { icon: PhoneCall, title: 'Fewer wasted returns', text: 'Flagsmith segments every buyer. Sarvam AI confirms risky COD by voice, Claude reads the reply, and repeat returners get no COD.' },
-  { icon: ShoppingCart, title: 'High-value carts first at peak', text: "Flagsmith's peak_priority flag sends big carts around a jammed courier hub at once." },
-  { icon: Route, title: 'Self-healing courier routing', text: 'NudgeBee catches the failing hub in Kubernetes, a person approves, Flagsmith reroutes every order live. No deploy.' },
+  { icon: PhoneCall, title: 'Fewer wasted returns', text: 'Flagsmith segments · Sarvam AI voice check · Claude reads reply · no COD for repeat returners' },
+  { icon: ShoppingCart, title: 'High-value carts first', text: 'Flagsmith peak_priority · big carts skip the jammed hub' },
+  { icon: Route, title: 'Self-healing routing', text: 'NudgeBee detects · human approves · Flagsmith reroutes live · no deploy' },
 ]
 
 function Intro() {
@@ -174,7 +174,7 @@ function Intro() {
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
       <p className="tour-intro-eyebrow">Pakka · smart festive logistics</p>
       <h2>More profit from festive traffic.</h2>
-      <p className="tour-intro-lede">Festive rushes waste money: parcels that come back, hubs that jam, big carts stuck behind small ones. Pakka runs the logistics for Indian D2C brands, live, with no code deploys.</p>
+      <p className="tour-intro-lede">Returned parcels · jammed hubs · big carts stuck in queue. Fixed live, for Indian D2C brands.</p>
       <ul>
         {POINTS.map(({ icon: Icon, title, text }) => (
           <li key={title}>
@@ -183,7 +183,7 @@ function Intro() {
           </li>
         ))}
       </ul>
-      <p className="tour-intro-buyer"><strong>Who buys it:</strong> D2C brands with heavy cash on delivery at festive peaks, and the logistics partners that ship for them.</p>
+      <p className="tour-intro-buyer"><strong>Who buys it:</strong> COD-heavy D2C brands · shipping aggregators and 3PLs</p>
       <p className="tour-intro-stack">Flagsmith (self-hosted) · NudgeBee · Sarvam AI · Claude API · Kubernetes on OrbStack</p>
     </motion.section>
   )
