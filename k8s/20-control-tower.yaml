@@ -35,6 +35,14 @@ spec:
               value: http://swiftship.pakka.svc:8080
             - name: COURIER_DAKEXPRESS_URL
               value: http://dakexpress.pakka.svc:8080
+            # Outbound HTTPS (Sarvam, Azure) leaves through the Mac's egress proxy (scripts/egress-proxy.mjs):
+            # on our network OrbStack breaks TLS from pods. Remove these three if your containers reach the internet.
+            - name: NODE_USE_ENV_PROXY
+              value: "1"
+            - name: HTTPS_PROXY
+              value: http://host.orb.internal:3128
+            - name: NO_PROXY
+              value: localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local,host.orb.internal
             - name: FLAGSMITH_MASTER_API_KEY
               valueFrom:
                 secretKeyRef: { name: pakka-secrets, key: FLAGSMITH_MASTER_API_KEY, optional: true }

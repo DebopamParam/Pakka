@@ -97,7 +97,8 @@ Needs macOS with [OrbStack](https://orbstack.dev) (Docker and Kubernetes enabled
    [nudgebee/pakka-hub-reroute.json](nudgebee/pakka-hub-reroute.json) as an automation and publish it.
    If containers can't upload to NudgeBee reliably (we saw `tls: bad record MAC` from OrbStack on a phone hotspot),
    run `node scripts/egress-proxy.mjs` and set `HTTPS_PROXY=http://host.orb.internal:3128` (with `NO_PROXY` for
-   cluster addresses) on the agent's workloads.
+   cluster addresses) on the agent's workloads. The control tower's manifest already uses this proxy (see Known
+   limits), so start it before step 4 on such a network.
 6. **UI:** `cd web && npm ci && npm run dev`, open the printed URL.
 
 **Demo:** New order → play the call → "Haan, bhej do" → Jam Bengaluru hub → approve in NudgeBee (Automations →
@@ -113,7 +114,11 @@ pakka-hub-reroute → Executions) → the orders move to DakExpress and the buye
   restrict it to the runbook (network policy or mTLS) instead of putting a token in the automation.
 - **The trigger matches any crash loop in `pakka`,** not only SwiftShip. Fine for the demo, where only SwiftShip jams.
 - **The Flagsmith compose file is Flagsmith's local quick start** and has placeholder secrets. Local use only.
-- **Sarvam** needs credits; until then voice shows as "simulated" and the typed quick replies are used.
+- **Sarvam** bills per character, so the control tower synthesises each spoken line once and replays it from memory.
+  Without credits or a key, voice shows as "simulated".
+- **Outbound HTTPS from the cluster goes through the Mac's egress proxy.** `k8s/20-control-tower.yaml` sets
+  `HTTPS_PROXY` for the control tower; without the proxy running, Sarvam and Claude calls fail (Claude falls back to
+  keywords). Remove those env lines on a network where containers reach the internet directly.
 - **Recover** after a jam can take a while: the crashed courier only accepts the call between restarts.
   `reset-demo.sh` is the reliable way back.
 
