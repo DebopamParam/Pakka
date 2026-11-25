@@ -1,7 +1,8 @@
-import { ArrowUpRight, PhoneCall, Route, ShoppingCart, Volume2 } from 'lucide-react'
+import { ArrowUpRight, PhoneCall, Route, ShoppingCart, UserCheck, Volume2 } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { rupees } from '../model'
+import narration from '../narration.json'
 import type { ReplayRun, ReplayStepId } from '../replay'
 import type { useReplay } from '../useReplay'
 
@@ -15,6 +16,9 @@ type Beat = {
   target?: string
   label?: string
   proof?: Proof
+  // The sponsor features at work in this beat.
+  feature?: string
+  human?: boolean
 }
 
 const spring = { type: 'spring', stiffness: 170, damping: 22 } as const
@@ -25,6 +29,15 @@ function clipLine(text: string, from: string) {
 }
 
 function script(run: ReplayRun): Record<ReplayStepId, Beat[]> {
+  const beats = steps(run)
+  // Each caption starts when the narrator starts its line.
+  for (const [id, starts] of Object.entries(narration) as [ReplayStepId, number[]][]) {
+    starts.forEach((at, i) => { if (beats[id][i]) beats[id][i].at = at })
+  }
+  return beats
+}
+
+function steps(run: ReplayRun): Record<ReplayStepId, Beat[]> {
   const last = run.frames[run.frames.length - 1]
   const buyer = last.state.orders.find((order) => order.id === run.orderId)
   const name = buyer?.buyer_name.split(' ')[0] ?? 'The buyer'
@@ -43,6 +56,7 @@ function script(run: ReplayRun): Record<ReplayStepId, Beat[]> {
       {
         at: 7000, actor: 'Flagsmith',
         text: `Flagsmith puts ${name} in the ${segment ?? 'risky'} segment: confirm by voice before shipping.`,
+        feature: 'Flagsmith · identity traits → segment → segment override of the cod_policy flag',
         target: `order-${run.orderId}`, label: 'Flagsmith decides',
         proof: { sponsor: 'Flagsmith', title: 'COD rule per buyer segment', src: '/proof/flagsmith-segments.png' },
       },
@@ -51,10 +65,11 @@ function script(run: ReplayRun): Record<ReplayStepId, Beat[]> {
       at: 0, actor: 'Sarvam AI', hinglish: true, target: 'voice-call', label: 'Sarvam calls',
       text: `“${clipLine(run.confirm.text, 'confirm')}”`,
       gloss: `Sarvam AI calls ${name} in Hinglish: “Your ${amount} Diwali order is cash on delivery — do you confirm?”`,
+      feature: 'Sarvam AI · Bulbul text-to-speech in Hinglish',
     }],
     reply: [
       { at: 0, actor: name, hinglish: true, text: `“${reply?.transcript ?? ''}”`, gloss: '“Yes, no problem, send it.”', target: 'reply', label: `${name} replies` },
-      { at: 2000, actor: reply?.source === 'claude' ? 'Claude' : 'Pakka', text: `${reply?.source === 'claude' ? 'Claude' : 'Pakka'} reads the reply as “${reply?.intent ?? 'confirm'}”. Order ${run.orderId} is ${reply?.intent === 'cancel' ? 'cancelled' : 'confirmed'}.`, target: 'reply', label: 'Claude reads intent' },
+      { at: 2000, actor: reply?.source === 'claude' ? 'Claude' : 'Pakka', text: `${reply?.source === 'claude' ? 'Claude' : 'Pakka'} reads the reply as “${reply?.intent ?? 'confirm'}”. Order ${run.orderId} is ${reply?.intent === 'cancel' ? 'cancelled' : 'confirmed'}.`, target: 'reply', label: 'Claude reads intent', feature: 'Claude · reads the intent of the reply' },
     ],
     jam: [{ at: 0, actor: 'SwiftShip', text: `Trouble: SwiftShip's Bengaluru hub jams${p95 ? ` — p95 latency hits ${Number(p95).toLocaleString('en-IN')} ms` : ''}.`, target: 'courier-swiftship', label: 'Hub jams' }],
     crash: [
@@ -65,30 +80,38 @@ function script(run: ReplayRun): Record<ReplayStepId, Beat[]> {
       },
       {
         at: 5000, actor: 'NudgeBee', text: 'NudgeBee detects the crash loop and starts the reroute runbook.',
+        feature: 'NudgeBee · Kubernetes event detection → automation event trigger',
         target: 'courier-swiftship', label: 'NudgeBee detects',
         proof: { sponsor: 'NudgeBee', title: 'Crash loop detected in our cluster', src: '/proof/nudgebee-detected.png' },
       },
     ],
     reroute: [
       {
-        at: 0, actor: 'NudgeBee', text: 'The runbook waits for a human: on-call approves it in NudgeBee.',
-        target: 'routing', label: 'On-call approves',
-        proof: { sponsor: 'NudgeBee', title: 'Waiting for approval', src: '/proof/nudgebee-approval.png' },
+        at: 0, actor: 'NudgeBee', human: true, text: 'Nothing changes until a person says yes: the automation stops at its approval step, and on-call approves it.',
+        target: 'routing', label: 'A person approves',
+        feature: 'NudgeBee · approval step in the automation',
+        proof: { sponsor: 'NudgeBee', title: 'Waiting for on-call approval', src: '/proof/nudgebee-approval.png' },
       },
       {
-        at: 3500, actor: 'Flagsmith', text: `The runbook flips Flagsmith's courier_routing: pincodes ${prefixes ?? '56, 58'} → DakExpress.`,
+        at: 3500, actor: 'Flagsmith', text: `NudgeBee's script calls Pakka, which rewrites courier_routing in Flagsmith: pincodes ${prefixes ?? '56, 58'} → DakExpress.`,
         target: 'routing', label: 'Flagsmith reroutes',
-        proof: { sponsor: 'NudgeBee', title: 'Runbook run completed', src: '/proof/nudgebee-completed.png' },
+        feature: 'NudgeBee · run-script action → Flagsmith · Admin API updates the courier_routing remote config',
+        proof: { sponsor: 'NudgeBee', title: 'Event trigger → approval → run script', src: '/proof/nudgebee-automation.png' },
       },
-      { at: 9000, actor: 'Pakka', text: `${moved ?? 'The'} in-flight orders move to DakExpress. No code deploy.`, target: 'orders', label: 'Orders moved' },
+      {
+        at: 9000, actor: 'Pakka', text: `${moved ?? 'The'} in-flight orders move to DakExpress. No code deploy.`, target: 'orders', label: 'Orders moved',
+        feature: 'Flagsmith · remote config, changed live',
+        proof: { sponsor: 'Flagsmith', title: 'courier_routing remote config', src: '/proof/flagsmith-routing.png' },
+      },
     ],
     update: [{
       at: 0, actor: 'Sarvam AI', hinglish: true, target: 'voice-update', label: `Sarvam tells ${name}`,
       text: `“${clipLine(run.update.text, 'DakExpress')}”`,
       gloss: `Sarvam AI tells ${name}: “The Bengaluru hub is delayed, so your ${amount} order now ships with DakExpress.”`,
+      feature: 'Sarvam AI · Bulbul text-to-speech in Hinglish',
     }],
     end: [
-      { at: 0, actor: 'Pakka', text: `Fewer returns, no stuck orders: ${moved ?? 'every'} orders rerouted, ${name} kept in the loop.`, target: 'orders', label: 'Delivered pakka' },
+      { at: 0, actor: 'Pakka', text: `Fewer returns, no stuck orders: ${moved ?? 'every'} orders rerouted, ${name} kept in the loop.`, target: 'orders', label: 'Delivered pakka', feature: 'Also in Flagsmith: voice_confirm_enabled kill switch · prepaid_nudge A/B test · peak_priority' },
     ],
   }
 }
@@ -199,7 +222,8 @@ export function DemoGuide({ run, playback, onProof }: {
   const tip = rect && { x: rect.x + Math.min(rect.width * 0.3, 90), y: rect.y + Math.min(rect.height / 2, 34) }
   const flip = tip ? tip.x < 190 : false
   const proof = active ? beat.proof : undefined
-  const proofLeft = rect && (rect.x + rect.width + 336 < window.innerWidth ? rect.x + rect.width + 16 : Math.max(16, rect.x - 336))
+  const proofWidth = beat.human ? 520 : 320
+  const proofLeft = rect && (rect.x + rect.width + proofWidth + 16 < window.innerWidth ? rect.x + rect.width + 16 : Math.max(16, rect.x - proofWidth - 16))
   const proofTop = rect && Math.min(Math.max(16, rect.y), window.innerHeight - 440)
 
   return (
@@ -220,7 +244,7 @@ export function DemoGuide({ run, playback, onProof }: {
           </motion.div>
         )}
         {proof && proofLeft != null && proofTop != null && (
-          <motion.button key={proof.title} type="button" className="tour-proof" style={{ left: proofLeft, top: proofTop }}
+          <motion.button key={proof.title} type="button" className={`tour-proof${beat.human ? ' tour-proof-human' : ''}`} style={{ left: proofLeft, top: proofTop }}
             initial={reduce ? false : { opacity: 0, scale: 0.92, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }}
             transition={transition} onClick={() => onProof(proof.sponsor)}>
             <span className="tour-proof-head"><strong>{proof.sponsor}</strong>{proof.title}</span>
@@ -237,10 +261,14 @@ export function DemoGuide({ run, playback, onProof }: {
           <motion.div key={`${frame.id}-${beatIndex}`} className="tour-caption" role="status"
             initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
             transition={{ duration: reduce ? 0 : 0.22 }}>
-            <span className={`tour-badge badge-${beat.actor.toLowerCase().replace(/[^a-z]/g, '')}`}>{beat.actor}</span>
+            <div className="tour-badges">
+              {beat.human && <span className="tour-badge badge-human"><UserCheck size={13} /> Human in the loop</span>}
+              <span className={`tour-badge badge-${beat.actor.toLowerCase().replace(/[^a-z]/g, '')}`}>{beat.actor}</span>
+            </div>
             <div>
               <p lang={beat.hinglish ? 'hi-Latn' : undefined}>{beat.text}</p>
               {beat.gloss && <p className="tour-gloss">{beat.gloss}</p>}
+              {beat.feature && <p className="tour-feature">{beat.feature}</p>}
               {frame.id === 'end' && (
                 <a href="https://github.com/DebopamParam/Pakka" target="_blank" rel="noreferrer">github.com/DebopamParam/Pakka <ArrowUpRight size={14} /></a>
               )}

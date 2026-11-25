@@ -672,3 +672,9 @@ tbody .selected-order th { box-shadow: inset 2px 0 var(--color-accent); }
 }
 
 .priority-tag { margin-left: 6px; padding: 1px 6px; border-radius: 99px; font-size: 10px; font-weight: 600; letter-spacing: .02em; color: #6d28d9; background: #ede9fe; vertical-align: middle; }
+
+.tour-badges { display: grid; gap: 6px; justify-items: start; flex: none; }
+.badge-human { display: inline-flex; gap: 5px; align-items: center; background: #f59e0b; color: #1c1300; box-shadow: 0 0 0 4px #f59e0b40; }
+.tour-caption .tour-feature { margin-top: 6px; font-family: var(--font-mono, ui-monospace, monospace); font-size: 12.5px; font-weight: 500; color: #c4b5fd; }
+.tour-proof-human { width: 520px; box-shadow: var(--shadow-float), 0 0 0 3px #f59e0b; }
+@media (max-width: 720px) { .tour-badges { display: flex; } }
