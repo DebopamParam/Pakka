@@ -1,5 +1,5 @@
 import { ArrowUpRight, AudioLines, Code2, Image, Pause, Play, RotateCcw, Terminal, X } from 'lucide-react'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import type { ProofImage, ReplayClip, ReplayRun, ReplayStepId } from '../replay'
 import type { useReplay } from '../useReplay'
 
@@ -81,13 +81,14 @@ function ClipProof({ title, clip }: { title: string; clip: ReplayClip }) {
   )
 }
 
-export function ReplayProof({ run, images, onOpen }: {
+export function ReplayProof({ run, images, selected, onSelect, hidden }: {
   run: ReplayRun
   images: ProofImage[]
-  onOpen: () => void
+  selected: string
+  onSelect: (id: string) => void
+  hidden: boolean
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
-  const [selected, setSelected] = useState('')
   const cards = new Map<string, typeof sponsors[number] & { images: ProofImage[] }>(
     sponsors.map((sponsor) => [sponsor.id, { ...sponsor, images: [] }]),
   )
@@ -97,21 +98,18 @@ export function ReplayProof({ run, images, onOpen }: {
     if (card) card.images.push(image)
     else cards.set(id, { id, name: image.sponsor, label: 'Recorded screenshot', icon: Image, images: [image] })
   }
-  const card = cards.get(selected)
+  const card = cards.get(sponsorId(selected))
 
   useLayoutEffect(() => {
     if (selected && !dialog.current?.open) dialog.current?.showModal()
   }, [selected])
 
   return (
-    <section className="proof-strip" aria-labelledby="proof-heading">
+    <section className={`proof-strip${hidden ? ' proof-strip-hidden' : ''}`} aria-labelledby="proof-heading">
       <h2 id="proof-heading">Proof</h2>
       <div className="proof-cards">
         {[...cards.values()].map(({ id, name, label, icon: Icon, images: screenshots }) => (
-          <button key={id} type="button" className="proof-card" aria-haspopup="dialog" onClick={() => {
-            onOpen()
-            setSelected(id)
-          }}>
+          <button key={id} type="button" className="proof-card" aria-haspopup="dialog" onClick={() => onSelect(id)}>
             <span className="proof-thumb">
               {screenshots[0] ? <img src={screenshots[0].src} alt="" /> : <Icon size={16} strokeWidth={1.7} />}
             </span>
@@ -119,7 +117,7 @@ export function ReplayProof({ run, images, onOpen }: {
           </button>
         ))}
       </div>
-      <dialog ref={dialog} className="proof-dialog" aria-labelledby="proof-title" onClose={() => setSelected('')}
+      <dialog ref={dialog} className="proof-dialog" aria-labelledby="proof-title" onClose={() => onSelect('')}
         onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close() }}>
         {card && <>
           <header>

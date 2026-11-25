@@ -40,7 +40,7 @@ function HealthCard({ courier }: { courier: Courier }) {
   const jammed = courier.status === 'jammed'
   const StatusIcon = jammed ? CircleAlert : CircleCheck
   return (
-    <article className="courier-card dark-panel">
+    <article className="courier-card dark-panel" data-tour={`courier-${courier.id}`}>
       <div className="courier-top">
         <div className="courier-title">
           <span className="icon-tile"><Truck size={17} strokeWidth={1.7} /></span>
@@ -75,7 +75,7 @@ function HealthCard({ courier }: { courier: Courier }) {
 
 export function CourierHealth({ couriers, recorded = false }: { couriers: Courier[]; recorded?: boolean }) {
   return (
-    <section aria-labelledby="courier-heading" className="courier-section">
+    <section aria-labelledby="courier-heading" className="courier-section" data-tour="couriers">
       <div className="section-line">
         <h2 id="courier-heading"><Activity size={17} /> Courier health</h2>
         <span className="section-note mono">{recorded ? 'Recorded telemetry' : '2s polling'}</span>
@@ -95,7 +95,7 @@ export function Orders({ orders, selectedId, onSelect, reasons, simulated }: {
   simulated: boolean
 }) {
   return (
-    <section className="light-panel orders-panel" aria-labelledby="orders-heading">
+    <section className="light-panel orders-panel" aria-labelledby="orders-heading" data-tour="orders">
       <div className="panel-heading">
         <h2 id="orders-heading"><Package size={16} /> Orders</h2>
         {simulated && <span className="light-badge">{orders.length} simulated orders</span>}
@@ -114,7 +114,7 @@ export function Orders({ orders, selectedId, onSelect, reasons, simulated }: {
                   : order.needs_voice_confirm ? 'Voice confirmation required' : `Prefix ${order.pincode.slice(0, 2)} routing`
                 const selected = selectedId === order.id
                 return (
-                  <tr key={order.id} className={selected ? 'selected-order' : ''} onClick={() => onSelect(order.id)}>
+                  <tr key={order.id} data-tour={`order-${order.id}`} className={selected ? 'selected-order' : ''} onClick={() => onSelect(order.id)}>
                     <th scope="row">
                       <button type="button" className="order-select" aria-pressed={selected} onClick={() => onSelect(order.id)}>
                         <strong>{order.city}</strong>
@@ -139,7 +139,7 @@ export function Orders({ orders, selectedId, onSelect, reasons, simulated }: {
 
 export function Routing({ routing, changed }: { routing: OpsState['routing'] | undefined; changed: boolean }) {
   return (
-    <section className="dark-panel routing-panel" aria-labelledby="routing-heading">
+    <section className="dark-panel routing-panel" aria-labelledby="routing-heading" data-tour="routing">
       <div className="panel-heading">
         <h2 id="routing-heading"><GitFork size={16} /> Routing rules</h2>
         <span className="dark-badge">{routing?.source === 'local-defaults' ? 'Local defaults' : 'Flagsmith'}</span>
@@ -166,7 +166,7 @@ export function Routing({ routing, changed }: { routing: OpsState['routing'] | u
 export function Timeline({ events, connected, recorded = false }: { events: OpsEvent[]; connected: boolean; recorded?: boolean }) {
   const reduce = useReducedMotion()
   return (
-    <section className="dark-panel timeline-panel" aria-labelledby="timeline-heading">
+    <section className="dark-panel timeline-panel" aria-labelledby="timeline-heading" data-tour="activity">
       <div className="panel-heading">
         <h2 id="timeline-heading"><Radio size={16} /> Activity</h2>
         <span className={`dark-badge feed-indicator ${connected ? 'connected' : ''}`}>

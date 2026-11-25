@@ -57,7 +57,7 @@ function VoiceCard({ title, message, update = false, loading, failure, retry, on
   }, [demoPlaying])
 
   return (
-    <article className={`voice-card ${update ? 'voice-update' : ''}`}>
+    <article className={`voice-card ${update ? 'voice-update' : ''}`} data-tour={update ? 'voice-update' : 'voice-call'}>
       <div className="voice-card-header">
         <span className="voice-icon"><Icon size={17} /></span>
         <h3>{title}<span>{update ? 'Delivery update' : 'Hinglish · voice call'}</span></h3>
@@ -245,6 +245,7 @@ function ReplyResult({ reply }: { reply: Reply | RecordedReply }) {
   return (
     <motion.div
       className="reply-result"
+      data-tour="reply"
       role="status"
       initial={reduce ? false : { opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}

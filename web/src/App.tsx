@@ -6,6 +6,7 @@ import { api, errorText, mockMode } from './api'
 import { BuyerPhone } from './components/BuyerPhone'
 import { BlurSwap } from './components/MotionText'
 import { CourierHealth, Orders, Routing, Timeline } from './components/OpsPanels'
+import { DemoGuide } from './components/DemoGuide'
 import { ReplayControls, ReplayProof } from './components/ReplayControls'
 import { sortOrders } from './model'
 import type { OpsEvent, OpsState, Order, Reply } from './model'
@@ -154,7 +155,7 @@ function isJammed(state: OpsState | undefined) {
 
 function Dashboard({
   state, events, order, onSelect, experience, connected = false, reasons = {},
-  faultRequested, orderAction, errors, faultAction, toolbar, faultStarted = false,
+  faultRequested, orderAction, errors, faultAction, toolbar, guide, faultStarted = false,
 }: {
   state?: OpsState
   events: OpsEvent[]
@@ -168,6 +169,7 @@ function Dashboard({
   errors?: ReactNode
   faultAction?: ReactNode
   toolbar?: ReactNode
+  guide?: ReactNode
   faultStarted?: boolean
 }) {
   const recorded = experience.kind === 'replay'
@@ -219,6 +221,7 @@ function Dashboard({
           )}
         </div>
       </main>
+      {guide}
     </>
   )
 }
@@ -227,6 +230,11 @@ function RecordedApp({ run, images }: { run: ReplayRun; images: ProofImage[] }) 
   const playback = useReplay(run)
   const { frame, index, pause } = playback
   const [selection, setSelection] = useState<{ index: number; id: string }>()
+  const [proof, setProof] = useState('')
+  const openProof = (id: string) => {
+    if (id) pause()
+    setProof(id)
+  }
   const selectedId = selection?.index === index ? selection.id : run.orderId
   const order = frame.state.orders.find((item) => item.id === selectedId)
   const reached = (id: string) => run.frames.slice(0, index + 1).some((step) => step.id === id)
@@ -248,8 +256,9 @@ function RecordedApp({ run, images }: { run: ReplayRun; images: ProofImage[] }) 
     }}
     toolbar={<div className="replay-toolbar">
       <ReplayControls run={run} playback={playback} />
-      <ReplayProof run={run} images={images} onOpen={pause} />
+      <ReplayProof run={run} images={images} selected={proof} onSelect={openProof} hidden={playback.playing} />
     </div>}
+    guide={<DemoGuide run={run} playback={playback} onProof={openProof} />}
   />
 }
 

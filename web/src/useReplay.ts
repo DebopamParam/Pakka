@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ReplayRun } from './replay'
+import type { ReplayRun, ReplayStepId } from './replay'
 
-const beat = 6500
+// Audio steps also wait for their clip to end.
+export const stepDurations: Record<ReplayStepId, number> = {
+  start: 3000, order: 4500, call: 1500, reply: 4000, jam: 3500, crash: 4500, reroute: 6000, update: 1500, end: 6000,
+}
 type Position = { index: number; elapsed: number; audioOffset: number }
 
 export function useReplay(run: ReplayRun) {
@@ -85,7 +88,7 @@ export function useReplay(run: ReplayRun) {
     const timer = window.setTimeout(() => {
       timeDone = true
       advance()
-    }, Math.max(0, beat - position.elapsed))
+    }, Math.max(0, stepDurations[frame.id] - position.elapsed))
 
     function audioFailed() {
       if (!active) return
