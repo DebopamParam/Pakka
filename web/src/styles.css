@@ -117,6 +117,7 @@ button svg, .panel-heading svg, .section-line svg { flex: none; }
 .health-chip { color: #a5deb8; background: color-mix(in srgb, var(--color-done) 17%, transparent); }
 .health-jammed { color: #ffd288; background: color-mix(in srgb, var(--color-flag-amber) 15%, transparent); }
 .courier-stats { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr) auto; align-items: end; gap: 7px; margin-top: 10px; padding-top: 8px; border-top: 1px solid #ffffff13; }
+.courier-stats.with-flight { grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr) minmax(0, 0.8fr) auto; }
 .courier-stats p { color: var(--dark-muted); font-size: 10px; }
 .courier-stats strong { display: block; margin-top: 2px; font: 600 19px/1.2 var(--font-mono); letter-spacing: -0.05em; white-space: nowrap; }
 .courier-stats small { color: var(--dark-muted); font-size: 11px; font-weight: 500; }

@@ -31,6 +31,7 @@ const orderSchema = z.object({
   needs_voice_confirm: z.boolean(),
   prepaid_nudge: z.string().nullable(),
   created_at: z.string(),
+  background: z.boolean().optional(),
   reason: z.string().optional(),
   decision_reason: z.string().optional(),
   decision: decisionSchema.optional(),
@@ -49,6 +50,7 @@ const courierSchema = z.object({
   status: z.enum(['ok', 'jammed']),
   p95_ms: z.number().nullable(),
   error_rate: z.number().nullable(),
+  in_flight: z.number().optional(),
   simulated: z.boolean(),
 })
 
@@ -79,6 +81,11 @@ export const replySchema = z.object({
 export type OpsState = z.infer<typeof stateSchema>
 export type OpsEvent = z.infer<typeof eventSchema>
 export type Order = z.infer<typeof orderSchema>
+
+// Demo orders first, then the simulated background traffic, each newest first.
+export function sortOrders(orders: Order[]) {
+  return [...orders].sort((a, b) => Number(a.background ?? false) - Number(b.background ?? false) || b.created_at.localeCompare(a.created_at))
+}
 export type Courier = z.infer<typeof courierSchema>
 export type NewOrder = z.infer<typeof newOrderSchema>
 export type Reply = z.infer<typeof replySchema>

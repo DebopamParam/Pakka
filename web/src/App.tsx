@@ -7,6 +7,7 @@ import { BuyerPhone } from './components/BuyerPhone'
 import { BlurSwap } from './components/MotionText'
 import { CourierHealth, Orders, Routing, Timeline } from './components/OpsPanels'
 import { ReplayControls, ReplayProof } from './components/ReplayControls'
+import { sortOrders } from './model'
 import type { OpsEvent, OpsState, Order, Reply } from './model'
 import { demoVideo, replay, replayMode } from './replay'
 import type { ProofImage, ReplayRun } from './replay'
@@ -64,9 +65,9 @@ function LiveApp() {
   const [orderError, setOrderError] = useState('')
   const [faultError, setFaultError] = useState('')
 
-  const orders = state ? [...state.orders].sort((a, b) => b.created_at.localeCompare(a.created_at)) : []
+  const orders = state ? sortOrders(state.orders) : []
   const order = orders.find((item) => item.id === selectedId)
-    ?? orders.find((item) => item.status === 'awaiting_confirm')
+    ?? orders.find((item) => !item.background && item.status === 'awaiting_confirm')
     ?? orders[0]
   const defaultId = order?.id
   useEffect(() => {
@@ -177,7 +178,7 @@ function Dashboard({
     : faultStarted ? 'FAULT INJECTED'
       : faultRequested && !rerouted ? 'JAM REQUESTED'
         : rerouted ? 'FALLBACK ACTIVE' : state ? 'ALL CLEAR' : 'AWAITING STATE'
-  const orders = state ? [...state.orders].sort((a, b) => b.created_at.localeCompare(a.created_at)) : []
+  const orders = state ? sortOrders(state.orders) : []
 
   return (
     <>

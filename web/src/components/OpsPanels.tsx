@@ -54,7 +54,7 @@ function HealthCard({ courier }: { courier: Courier }) {
           <BlurSwap text={jammed ? 'Jammed' : 'Healthy'} />
         </span>
       </div>
-      <div className="courier-stats">
+      <div className={`courier-stats${courier.in_flight != null ? ' with-flight' : ''}`}>
         <div>
           <p>p95 latency</p>
           <strong><NumberTicker text={courier.p95_ms == null ? '—' : latency.format(courier.p95_ms)} />{courier.p95_ms != null && <small> ms</small>}</strong>
@@ -63,6 +63,10 @@ function HealthCard({ courier }: { courier: Courier }) {
           <p>Error rate</p>
           <strong><NumberTicker text={courier.error_rate == null ? '—' : rate.format(courier.error_rate)} /></strong>
         </div>
+        {courier.in_flight != null && <div>
+          <p>In flight</p>
+          <strong><NumberTicker text={String(courier.in_flight)} /></strong>
+        </div>}
         <span className="sim-label">simulated</span>
       </div>
     </article>
@@ -94,7 +98,7 @@ export function Orders({ orders, selectedId, onSelect, reasons, simulated }: {
     <section className="light-panel orders-panel" aria-labelledby="orders-heading">
       <div className="panel-heading">
         <h2 id="orders-heading"><Package size={16} /> Orders</h2>
-        {simulated && <span className="light-badge">simulated orders</span>}
+        {simulated && <span className="light-badge">{orders.length} simulated orders</span>}
       </div>
       {orders.length > 0
         ? <div className="orders-scroll">

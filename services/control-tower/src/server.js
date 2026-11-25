@@ -61,7 +61,7 @@ function courierFor(pincode, r) {
   return mapped ? { courier: mapped, why: `courier_routing maps ${prefix}xxxx → ${mapped}` } : { courier: r.fallback, why: `prefix ${prefix} not in courier_routing, fallback ${r.fallback}` };
 }
 
-async function createOrder(input) {
+async function createOrder(input, { background = false } = {}) {
   const value = Math.round(Number(input.value) || 0);
   const cod = Boolean(input.cod);
   const traits = {
@@ -94,6 +94,7 @@ async function createOrder(input) {
   const sourceWhy = flags.source === "flagsmith" ? "" : ` [${flags.source}${flags.missing?.length ? `: missing ${flags.missing.join(", ")}` : ""}]`;
   const reason = `${voiceWhy}; ${route.why}${codWhy}${sourceWhy}`;
   if (cod && !codAllowed) {
+    if (background) return null;
     emit("flag", `COD declined for ${input.buyer_name || "Guest"}`, reason, "flagsmith");
     throw Object.assign(new Error(`COD is not available above ${inr(policy.max_cod_value)} for this buyer. Offer prepaid instead.`), { status: 422 });
   }
@@ -110,9 +111,11 @@ async function createOrder(input) {
     needs_voice_confirm: needsVoice,
     prepaid_nudge: cod ? prepaid_nudge : null,
     created_at: new Date().toISOString(),
+    background,
     traits,
   };
   orders.push(order);
+  if (background) return { order: publicOrder(order) };
   const decision = { courier: order.courier, needs_voice_confirm: needsVoice, prepaid_nudge: order.prepaid_nudge, cod_allowed: codAllowed, reason, flag_source: flags.source };
 
   emit("order", `Order ${order.id}: ${order.buyer_name}, ${order.city} ${order.pincode}`, `${inr(value)} ${cod ? "COD" : "prepaid"} via ${order.courier}`, "pakka");
@@ -190,7 +193,8 @@ async function probe(c) {
 }
 
 function publicCourier({ id, name, hub, status, p95_ms, error_rate }) {
-  return { id, name, hub, status, p95_ms, error_rate, simulated: true };
+  const in_flight = orders.filter((o) => o.courier === id && !["cancelled", "delivered"].includes(o.status)).length;
+  return { id, name, hub, status, p95_ms, error_rate, in_flight, simulated: true };
 }
 
 // Flagsmith refuses webhooks to private addresses, so the control tower watches the environment's flag values and
@@ -364,7 +368,7 @@ const routes = [
       // A buyer still mid-confirmation keeps that status so their reply still counts.
       if (o.status !== "awaiting_confirm") o.status = "rerouted";
       o.spoken_update = { text: rerouteText(o, from, to), played: false };
-      emit("voice", `Spoken update queued for ${o.buyer_name}`, o.spoken_update.text, "pakka");
+      if (!o.background) emit("voice", `Spoken update queued for ${o.buyer_name}`, o.spoken_update.text, "pakka");
     }
     const now = new Date().toISOString();
     for (const inc of incidents) {
@@ -390,6 +394,43 @@ const routes = [
     send(res, 200, { ok: true });
   }],
 ];
+
+// ---------- background traffic (simulated) ----------
+
+// A festive day has hundreds of orders in flight, so the dashboard runs a stream of simulated orders through the same
+// Flagsmith decisions. They stay out of the activity feed; the demo order and the reroute summary stay readable.
+const TRAFFIC_MS = Number(process.env.TRAFFIC_MS ?? 2500);
+const TRAFFIC_START = Number(process.env.TRAFFIC_START ?? 60);
+const TRAFFIC_MAX = 400;
+const NAMES = ["Priya Nair", "Rahul Verma", "Sneha Iyer", "Vikram Singh", "Kavya Reddy", "Amit Joshi", "Pooja Desai", "Karan Mehta", "Divya Menon", "Rohit Gowda", "Neha Kulkarni", "Suresh Hegde", "Anjali Gupta", "Farhan Sheikh", "Lakshmi Rao", "Manoj Shetty", "Ishita Bose", "Nikhil Kamath", "Shreya Pillai", "Varun Bhat"];
+const PLACES = [
+  ["Bengaluru", "560076"], ["Bengaluru", "560102"], ["Bengaluru", "560011"], ["Hubballi", "580031"], ["Dharwad", "580008"],
+  ["Mysuru", "570017"], ["Belagavi", "590006"], ["Jaipur", "302017"], ["Mumbai", "400053"], ["Pune", "411038"],
+  ["Delhi", "110024"], ["Chennai", "600040"], ["Kolkata", "700029"], ["Hyderabad", "500081"],
+];
+const VALUES = [499, 799, 899, 1199, 1499, 1799, 2499, 3299];
+const pick = (list) => list[Math.floor(Math.random() * list.length)];
+
+async function backgroundOrder() {
+  if (orders.filter((o) => o.background).length >= TRAFFIC_MAX) return;
+  const [city, pincode] = pick(PLACES);
+  const created = await createOrder({
+    buyer_name: pick(NAMES), phone_last4: String(1000 + Math.floor(Math.random() * 9000)), pincode, city,
+    value: pick(VALUES), cod: Math.random() < 0.65, order_count: Math.floor(Math.random() * 6), rto_risk: Math.random() < 0.25 ? "high" : "low",
+  }, { background: true }).catch(() => null);
+  const o = created && orders.find((x) => x.id === created.order.id);
+  // Simulated buyers answer their confirmation call within a few seconds; no real call is made for them.
+  if (o?.status === "awaiting_confirm") {
+    setTimeout(() => { if (o.status === "awaiting_confirm") o.status = Math.random() < 0.85 ? "confirmed" : "cancelled"; }, 8000 + Math.random() * 20000);
+  }
+}
+
+async function startTraffic() {
+  if (!TRAFFIC_MS) return;
+  for (let i = 0; i < TRAFFIC_START; i++) await backgroundOrder();
+  emit("ops", `Simulated festive traffic: ${TRAFFIC_START} orders in flight`, `a new simulated order every ${TRAFFIC_MS / 1000}s, routed by Flagsmith`, "pakka");
+  setInterval(backgroundOrder, TRAFFIC_MS);
+}
 
 const server = http.createServer(async (req, res) => {
   if (req.method === "OPTIONS") {
@@ -422,6 +463,7 @@ server.listen(PORT, async () => {
   console.log(`control tower on :${PORT}`);
   emit("ops", "Control tower started", "couriers are simulated", "pakka");
   await refreshRouting();
+  await startTraffic();
   for (const o of SEED) await createOrder(o);
   for (const c of Object.values(couriers)) setInterval(() => probe(c), PROBE_MS);
   setInterval(refreshRouting, 3000);
