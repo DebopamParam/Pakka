@@ -18,11 +18,6 @@ const steps: Record<ReplayStepId, { name: string; actor: string }> = {
   end: { name: 'Finish', actor: 'Pakka' },
 }
 
-const clockTime = (ms: number) => {
-  const seconds = Math.max(0, Math.floor(ms / 1000))
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
-}
-
 const dateInIndia = new Intl.DateTimeFormat('en-IN', {
   dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata',
 })
@@ -60,7 +55,6 @@ export function ReplayControls({ run, playback }: { run: ReplayRun; playback: Re
         <input type="range" aria-label="Demo position" min={0} max={Math.round(length)} step={100} value={Math.round(at)}
           style={{ '--progress': `${length ? (at / length) * 100 : 0}%` } as CSSProperties}
           onChange={(event) => seekTo(Number(event.target.value))} />
-        <span className="mono">{clockTime(at)} / {clockTime(length)}</span>
       </div>
       <div className="replay-position">
         <p className="replay-caption" role="status"><strong>{actor}</strong><span>{frame.label}</span></p>
