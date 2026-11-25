@@ -118,7 +118,7 @@ function steps(run: ReplayRun): Record<ReplayStepId, Beat[]> {
     update: [{
       at: 0, actor: 'Sarvam AI', hinglish: true, target: 'voice-update', label: `Sarvam tells ${name}`,
       text: `“${clipLine(run.update.text, 'DakExpress')}”`,
-      gloss: `Sarvam AI tells ${name}: “The Bengaluru hub is delayed, so your ${amount} order now ships with Courier 2 (DakExpress).”`,
+      gloss: `Sarvam AI tells ${name}: “The Bengaluru hub is delayed, so your ${amount} order now ships with Courier 2.”`,
       feature: 'Sarvam AI · Bulbul text-to-speech in Hinglish',
     }],
     end: [
