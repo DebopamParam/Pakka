@@ -1,8 +1,14 @@
-# Pakka — festive COD, delivered pakka
+# Pakka — smart festive logistics, less waste
+
+**Live demo (press Play, sound on): https://pakka.debopamchowdhury.com** — a narrated replay of a real recorded run.
 
 Pakka is a logistics control tower for Indian D2C brands in the festive rush. Shipping is free for the buyer, so when
 a cash-on-delivery (COD) parcel comes back unopened (RTO), the brand pays shipping both ways. Pakka cuts failed COD
-deliveries and reroutes around jammed courier hubs.
+deliveries, sends high-value carts first at peak, and reroutes around jammed courier hubs live, with a person
+approving each fix in NudgeBee (Slack, Teams or Google Chat also work).
+
+**Who buys it:** D2C brands that sell heavily on COD during festive sales, and the shipping aggregators and 3PLs that
+run their orders, as a per-order subscription.
 
 Built solo at **Festive Hacks**, BIEC Bengaluru, 25 Nov 2026.
 
