@@ -56,6 +56,9 @@ Each entry: what we chose, why, and what else we could have done.
   raised no event. Our first version handled SIGTERM gracefully and was never reported.
 - **Verified 25 Nov, 13:55:** jam → crash loop → NudgeBee event → automation run → approval → script →
   `/ops/reroute` → Flagsmith `courier_routing` changed → 2 orders rerouted, incident mitigated.
+- **Grouping:** NudgeBee folds repeat crash loops of the same workload into the open event. A second SwiftShip jam
+  at 14:06 started no new run; our test pod re-fired only after about 27 minutes. So the automation also has a
+  manual trigger ("Run current"), the backup for a second demo run within that window.
 - **Other routes:**
   - **Webhook from Pakka's SLO check:** weaker, the app reports its own problem; needs a webhook integration.
   - **Prometheus + Alertmanager into NudgeBee:** the production setup for latency and error-rate rules on courier

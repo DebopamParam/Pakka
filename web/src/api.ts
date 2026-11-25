@@ -9,7 +9,8 @@ export const mockMode = import.meta.env.VITE_MOCK === '1' || new URLSearchParams
 async function request(path: string, init?: RequestInit) {
   const response = await fetch(base + path, init)
   if (!response.ok) {
-    const message = z.object({ error: z.string() }).safeParse(await response.json().catch(() => null))
+    const message = z.object({ error: z.string(), use_typed_reply: z.boolean().optional() }).safeParse(await response.json().catch(() => null))
+    if (message.success && message.data.use_typed_reply) throw new Error('Voice transcription is unavailable. Choose a text reply below.')
     throw new Error(message.success ? message.data.error : `Request failed (HTTP ${response.status}).`)
   }
   return response

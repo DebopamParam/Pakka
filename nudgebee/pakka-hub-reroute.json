@@ -19,7 +19,9 @@
         "params": {
           "script": "curl -sS -f -m 20 -X POST http://control-tower.pakka.svc:8080/ops/reroute -H 'Content-Type: application/json' -d '{\"from\":\"swiftship\",\"to\":\"dakexpress\",\"reason\":\"NudgeBee: SwiftShip Bengaluru hub in CrashLoopBackOff, reroute approved by on-call\"}'"
         },
-        "depends_on": ["core_approval"]
+        "depends_on": [
+          "core_approval"
+        ]
       }
     ],
     "triggers": [
@@ -28,6 +30,10 @@
         "params": {
           "filter": "{{ event.event_type == \"report_crash_loop\" and event.subject_namespace == \"pakka\" }}"
         }
+      },
+      {
+        "type": "manual",
+        "params": {}
       }
     ],
     "retry_policy": {

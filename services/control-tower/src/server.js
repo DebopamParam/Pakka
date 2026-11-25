@@ -29,6 +29,8 @@ const incidents = [];
 const events = [];
 const clients = new Set();
 let routing = { ...DEFAULTS.courier_routing, source: "local-defaults" };
+
+const isRouting = (r) => Boolean(r && typeof r.by_prefix === "object" && r.by_prefix && typeof r.fallback === "string");
 let orderSeq = 1000;
 
 // ---------- events ----------
@@ -70,7 +72,10 @@ async function createOrder(input) {
   };
   const identifier = `buyer-${String(input.phone_last4 || "0000")}-${firstName(input.buyer_name || "guest").toLowerCase()}`;
   const flags = await evaluateBuyer(identifier, traits);
-  const { courier_routing: r, cod_policy: policy, voice_confirm_enabled: voiceOn, prepaid_nudge } = flags.values;
+  const { cod_policy: policy, voice_confirm_enabled: voiceOn, prepaid_nudge } = flags.values;
+  // If Flagsmith is unreachable or the value is malformed, keep the last routing we read rather than startup defaults,
+  // so a timeout after a reroute never sends orders back to the jammed hub.
+  const r = flags.source !== "local-defaults" && isRouting(flags.values.courier_routing) ? flags.values.courier_routing : routing;
 
   const route = courierFor(input.pincode, r);
   const segment = segmentFor(traits);
@@ -88,6 +93,10 @@ async function createOrder(input) {
   const codWhy = codAllowed ? "" : `; COD not allowed above max_cod_value ${inr(policy.max_cod_value)}`;
   const sourceWhy = flags.source === "flagsmith" ? "" : ` [${flags.source}${flags.missing?.length ? `: missing ${flags.missing.join(", ")}` : ""}]`;
   const reason = `${voiceWhy}; ${route.why}${codWhy}${sourceWhy}`;
+  if (cod && !codAllowed) {
+    emit("flag", `COD declined for ${input.buyer_name || "Guest"}`, reason, "flagsmith");
+    throw Object.assign(new Error(`COD is not available above ${inr(policy.max_cod_value)} for this buyer. Offer prepaid instead.`), { status: 422 });
+  }
 
   const order = {
     id: `PK-${++orderSeq}`,
@@ -121,7 +130,26 @@ function rerouteText(o, from, to) {
 
 // ---------- courier probes ----------
 
+// A jammed courier crashes and sits in CrashLoopBackOff, so a single "recover" call can miss it.
+// Keep retrying on each probe tick until the courier accepts it.
+async function retryRecover(c) {
+  try {
+    const r = await fetch(`${c.url}/chaos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ on: false }),
+      signal: AbortSignal.timeout(1500),
+    });
+    if (!r.ok) return;
+    c.recoverPending = false;
+    emit("ops", `Fault cleared: ${c.name} ${c.hub} hub`, "recovery reached the courier (simulated)", "pakka");
+  } catch {
+    // Still restarting; try again on the next tick.
+  }
+}
+
 async function probe(c) {
+  if (c.recoverPending) await retryRecover(c);
   if (c.probing) return;
   c.probing = true;
   const start = Date.now();
@@ -171,8 +199,11 @@ let lastFlags = null;
 
 async function refreshRouting() {
   const env = await environmentFlags();
+  if (env.source === "local-defaults" || !isRouting(env.values.courier_routing)) {
+    if (routing.source !== "local-defaults") routing = { ...routing, source: "flagsmith (last known)" };
+    return;
+  }
   routing = { ...env.values.courier_routing, source: env.source };
-  if (env.source === "local-defaults") return;
   const now = Object.fromEntries(Object.entries(env.values).map(([k, v]) => [k, JSON.stringify(v)]));
   if (lastFlags) {
     for (const [name, value] of Object.entries(now)) {
@@ -260,8 +291,8 @@ const routes = [
 
   ["POST", /^\/api\/orders\/([^/]+)\/voice-prompt$/, async (req, res, id) => {
     const o = findOrder(id);
-    const text = o.spoken_update && !o.spoken_update.played ? o.spoken_update.text : confirmText(o);
-    if (o.spoken_update && text === o.spoken_update.text) o.spoken_update.played = true;
+    // After a reroute the update is what the buyer needs to hear, so it is served on every request (reloads, a second tab).
+    const text = o.spoken_update ? o.spoken_update.text : confirmText(o);
     const tts = await speak(text);
     emit("voice", `Calling ${o.buyer_name} in Hinglish`, tts.simulated ? `${text} (simulated: ${tts.error})` : text, "sarvam");
     send(res, 200, { text, audio_wav_base64: tts.audio, simulated: tts.simulated, ...(tts.error ? { error: tts.error } : {}) });
@@ -298,8 +329,12 @@ const routes = [
         signal: AbortSignal.timeout(5000),
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      c.recoverPending = false;
     } catch (err) {
-      return send(res, 502, { error: `could not reach ${c.name} at ${c.url}: ${err.message}` });
+      if (on) return send(res, 502, { error: `could not reach ${c.name} at ${c.url}: ${err.message}` });
+      c.recoverPending = true;
+      emit("ops", `Recovery queued: ${c.name} ${c.hub} hub`, "the courier is restarting; retrying every 2s", "pakka");
+      return send(res, 202, { ok: true, courier, on: false, queued: true });
     }
     emit("ops", on ? `Fault injected: ${c.name} ${c.hub} hub jammed` : `Fault cleared: ${c.name} ${c.hub} hub`, "simulated courier", "pakka");
     send(res, 200, { ok: true, courier, on: Boolean(on) });
@@ -377,10 +412,10 @@ const server = http.createServer(async (req, res) => {
 });
 
 const SEED = [
-  { buyer_name: "Ravi Kumar", phone_last4: "4821", pincode: "580020", city: "Hubballi", value: 1499, cod: true, order_count: 0, rto_risk: "high" },
+  { buyer_name: "Ravi Kumar", phone_last4: "4821", pincode: "580001", city: "Dharwad", value: 1799, cod: true, order_count: 3, rto_risk: "low" },
   { buyer_name: "Ananya Rao", phone_last4: "1093", pincode: "560034", city: "Bengaluru", value: 2499, cod: true, order_count: 6, rto_risk: "low" },
   { buyer_name: "Meera Shah", phone_last4: "7710", pincode: "302001", city: "Jaipur", value: 899, cod: false, order_count: 1, rto_risk: "low" },
-  { buyer_name: "Arjun Patil", phone_last4: "3356", pincode: "590001", city: "Belagavi", value: 1299, cod: true, order_count: 1, rto_risk: "low" },
+  { buyer_name: "Arjun Patil", phone_last4: "3356", pincode: "590001", city: "Belagavi", value: 899, cod: true, order_count: 1, rto_risk: "low" },
 ];
 
 server.listen(PORT, async () => {

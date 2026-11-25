@@ -4,8 +4,8 @@
 process.loadEnvFile(new URL("../flagsmith/.local-admin.env", import.meta.url));
 
 const BASE = process.env.FLAGSMITH_URL ?? "http://localhost:8000";
-const PROJECT = 1;
-const ENV_KEY = "6FBvm2ADWYXFgnoLnUgEGv"; // Development
+const PROJECT = Number(process.env.FLAGSMITH_PROJECT_ID ?? 1);
+const ENV_KEY = process.env.FLAGSMITH_ENV_KEY ?? "6FBvm2ADWYXFgnoLnUgEGv"; // our Development environment
 const WEBHOOK_URL = process.env.PAKKA_WEBHOOK_URL;
 const LEGACY = ["surge_mode", "degradation_policy", "wait_offer"];
 
