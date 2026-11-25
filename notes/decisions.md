@@ -44,26 +44,38 @@ Each entry: what we chose, why, and what else we could have done.
 - **Caveat:** we have not checked whether OrbStack enforces Kubernetes network policies, so restricting callers to
   NudgeBee's pods is unverified.
 
-## 4. Detection: NudgeBee's own detection first, a webhook as fallback
+## 4. Detection: NudgeBee's own detection (verified)
 
-- **Chosen (being tested):** an Event trigger. The courier hub pod fails in a way Kubernetes can see, NudgeBee
-  notices, and NudgeBee starts the runbook itself.
-- **Why:** NudgeBee then really does detect → explain → approve → act. With a webhook from our app, the app would be
-  reporting its own problem.
+- **Chosen:** an Event trigger on NudgeBee's own crash-loop detection:
+  `{{ event.event_type == "report_crash_loop" and event.subject_namespace == "pakka" }}`.
+  We copied the filter format from NudgeBee's "Create Automation" on a real event.
+- **How the jam becomes a crash loop:** a jammed hub's service crashes (exit 1) a few seconds after the jam, and the
+  jam is kept on an `emptyDir`, so it survives restarts. Kubernetes reports CrashLoopBackOff and NudgeBee raises
+  "Pod pakka/swiftship-… is in CrashLoopBackOff".
+- **What we learned:** NudgeBee ignores a container that exits cleanly (exit 0, "Completed"), and failing probes alone
+  raised no event. Our first version handled SIGTERM gracefully and was never reported.
+- **Verified 25 Nov, 13:55:** jam → crash loop → NudgeBee event → automation run → approval → script →
+  `/ops/reroute` → Flagsmith `courier_routing` changed → 2 orders rerouted, incident mitigated.
 - **Other routes:**
-  - **Webhook from Pakka's SLO check:** simple, but weaker evidence that NudgeBee did the detecting. It needs a webhook
-    integration created in NudgeBee first. This is the fallback.
-  - **Prometheus + Alertmanager alerts into NudgeBee:** the standard production setup, with latency and error-rate
-    rules on courier calls. Skipped because it needs the monitoring stack enabled and wired (Alertmanager pointed at
-    the NudgeBee runner). Too much for today; named as the next step.
-  - **Schedule trigger:** poll health every minute. Rejected as slower and not event-driven.
+  - **Webhook from Pakka's SLO check:** weaker, the app reports its own problem; needs a webhook integration.
+  - **Prometheus + Alertmanager into NudgeBee:** the production setup for latency and error-rate rules on courier
+    calls. Too much wiring for today; named as the next step.
+  - **Schedule trigger:** polling. Rejected as slower and not event-driven.
 
-## 5. Unreliable network at the venue
+## 5. Unreliable network: it was OrbStack, not the venue Wi-Fi
 
-- **Seen:** the NudgeBee link dropped every 15–30 minutes on venue Wi-Fi (`tls: bad record MAC`).
-- **Chosen:** use the phone hotspot. Retries now span about a minute: 5 attempts, starting at 5s and doubling. A
-  retried flip is harmless because it just sets the same value again.
-- **Backup:** a warm-up run before recording, recording in segments, and a backup take.
+- **Seen:** NudgeBee's agent kept failing to reach NudgeBee (`tls: bad record MAC`): 320 errors in 102 minutes,
+  and a dropped crash-loop event.
+- **Found:** on the phone hotspot, larger HTTPS uploads from *any* OrbStack container fail (6 of 6 at 300 KB, some at
+  20 KB), to NudgeBee and to httpbin.org alike, while the same uploads from the Mac succeed. Lower MTU and turning off
+  segmentation/checksum offload inside the pod did not help.
+- **Chosen:** a 30-line CONNECT proxy on the Mac (`scripts/egress-proxy.mjs`). The NudgeBee agent sends its traffic
+  through it (`HTTPS_PROXY=http://host.orb.internal:3128`, cluster addresses excluded). After that: 0 errors, and the
+  relay connected first time.
+- **Other routes:** restarting OrbStack (restarts every container, untested whether it helps); a different network
+  (not available at the venue).
+- **Also:** retries span about a minute (5 attempts from 5s, doubling). A retried flip is harmless because it sets the
+  same value again. Before recording: a warm-up run and a backup take.
 
 ## 6. Voice in Hinglish with Sarvam
 
@@ -75,7 +87,9 @@ Each entry: what we chose, why, and what else we could have done.
   - **Separate Kannada or Hindi voices:** possible with Sarvam. Hinglish covers the demo with one voice.
   - **WhatsApp or SMS confirmation:** the real-world channel, but it needs Business API approval. Out of scope today.
   - **Voice cloning:** rejected on principle.
-- **Chat and intent parsing:** a separate LLM, Azure-hosted Claude. Sarvam is used only for speech.
+- **Chat and intent parsing:** a separate LLM, Azure-hosted Claude (Opus 5.5, about 2s per reply). Sarvam is used only
+  for speech. A keyword fallback runs if Claude is unreachable; it gets "haan, koi problem nahi, bhej do" wrong
+  (reads "nahi" as cancel), which Claude gets right. That is why the LLM is there.
 
 ## 7. Flagsmith carries the live logistics rules
 

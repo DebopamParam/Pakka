@@ -1,0 +1,42 @@
+{
+  "name": "pakka-hub-reroute",
+  "definition": {
+    "version": "v1",
+    "timeout": "30m",
+    "inputs": [],
+    "output": {},
+    "tasks": [
+      {
+        "id": "core_approval",
+        "type": "core.approval",
+        "params": {
+          "message": "SwiftShip's Bengaluru hub is crashlooping (simulated courier). Approve to reroute pincode prefixes 56 and 58 to DakExpress through Flagsmith courier_routing. Pakka will tell affected buyers in Hinglish."
+        }
+      },
+      {
+        "id": "reroute",
+        "type": "scripting.run_script",
+        "params": {
+          "script": "curl -sS -f -m 20 -X POST http://control-tower.pakka.svc:8080/ops/reroute -H 'Content-Type: application/json' -d '{\"from\":\"swiftship\",\"to\":\"dakexpress\",\"reason\":\"NudgeBee: SwiftShip Bengaluru hub in CrashLoopBackOff, reroute approved by on-call\"}'"
+        },
+        "depends_on": ["core_approval"]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "event",
+        "params": {
+          "filter": "{{ event.event_type == \"report_crash_loop\" and event.subject_namespace == \"pakka\" }}"
+        }
+      }
+    ],
+    "retry_policy": {
+      "maximum_attempts": 5,
+      "initial_interval": "5s",
+      "maximum_interval": "",
+      "backoff_coefficient": 2
+    }
+  },
+  "tags": {},
+  "status": "ACTIVE"
+}

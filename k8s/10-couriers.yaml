@@ -19,6 +19,9 @@ spec:
         app.kubernetes.io/component: courier
         app.kubernetes.io/part-of: pakka
     spec:
+      volumes:
+        - name: state
+          emptyDir: {}
       containers:
         - name: courier
           image: pakka/courier-mock:dev
@@ -33,6 +36,11 @@ spec:
               value: SwiftShip
             - name: HUB
               value: "Bengaluru hub"
+            - name: JAM_FILE
+              value: /state/jammed
+          volumeMounts:
+            - name: state
+              mountPath: /state
           resources:
             requests:
               cpu: 10m
@@ -96,6 +104,9 @@ spec:
         app.kubernetes.io/component: courier
         app.kubernetes.io/part-of: pakka
     spec:
+      volumes:
+        - name: state
+          emptyDir: {}
       containers:
         - name: courier
           image: pakka/courier-mock:dev
@@ -110,6 +121,11 @@ spec:
               value: DakExpress
             - name: HUB
               value: "Pune hub"
+            - name: JAM_FILE
+              value: /state/jammed
+          volumeMounts:
+            - name: state
+              mountPath: /state
           resources:
             requests:
               cpu: 10m

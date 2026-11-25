@@ -1,13 +1,31 @@
 // Simulated courier for the Pakka demo. Everything here is fictional.
 import http from 'node:http';
 import { randomInt } from 'node:crypto';
+import { existsSync, rmSync, writeFileSync } from 'node:fs';
 
 const COURIER_ID = process.env.COURIER_ID || 'swiftship';
 const COURIER_NAME = process.env.COURIER_NAME || COURIER_ID;
 const HUB = process.env.HUB || 'Bengaluru hub';
 const PORT = Number(process.env.PORT || 8080);
+// The jam survives container restarts (an emptyDir in k8s), so a jammed hub keeps crashing and ends in
+// CrashLoopBackOff, which NudgeBee detects. Unset locally: the jam is in memory only and nothing crashes.
+const JAM_FILE = process.env.JAM_FILE;
 
-let jammed = false;
+let jammed = Boolean(JAM_FILE && existsSync(JAM_FILE));
+let crashTimer = null;
+
+// A jammed hub's sortation service falls over: with a persisted jam it exits with an error a few seconds after the
+// jam starts (and after each restart), so Kubernetes reports a real crash loop.
+function armCrash() {
+  clearTimeout(crashTimer);
+  crashTimer = null;
+  if (!jammed || !JAM_FILE) return;
+  crashTimer = setTimeout(() => {
+    log({ level: 'error', event: 'hub_crash', msg: `sortation service crashed: backlog at ${HUB} (simulated)` });
+    process.exit(1);
+  }, Number(process.env.JAM_CRASH_MS || 4000));
+}
+armCrash();
 let shipmentSeq = 0;
 
 const log = (fields) => console.log(JSON.stringify({ at: new Date().toISOString(), courier: COURIER_ID, ...fields }));
@@ -77,6 +95,8 @@ async function handle(req, res) {
       if (body === null || typeof body.on !== 'boolean') return send(res, 400, { error: 'body must be {"on": boolean}' });
       if (body.on !== jammed) {
         jammed = body.on;
+        if (JAM_FILE) jammed ? writeFileSync(JAM_FILE, '') : rmSync(JAM_FILE, { force: true });
+        armCrash();
         log(
           jammed
             ? { level: 'error', event: 'jam_on', msg: `HUB JAMMED: sortation backlog at ${HUB} (simulated)` }
@@ -112,8 +132,9 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => log({ level: 'info', event: 'listening', msg: `${COURIER_NAME} (${HUB}) on :${PORT}`, port: PORT }));
+server.listen(PORT, () => log({ level: 'info', event: 'listening', msg: `${COURIER_NAME} (${HUB}) on :${PORT}`, port: PORT, jammed }));
 
-const shutdown = () => server.close(() => process.exit(0));
+// A jammed hub that is stopped (e.g. by the liveness probe) did not drain, so it exits with an error too.
+const shutdown = () => server.close(() => process.exit(jammed && JAM_FILE ? 1 : 0));
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);

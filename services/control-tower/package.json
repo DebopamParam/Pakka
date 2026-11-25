@@ -1,0 +1,16 @@
+{
+  "name": "pakka-control-tower",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "sarvamai": "^1.1.22"
+  }
+}
